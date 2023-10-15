@@ -1,7 +1,7 @@
 {
     "name": "server",
     "version": "1.0.0",
-    "description": "playing together socket-server",
+    "description": "i-win socket-server",
     "main": "index.js",
     "scripts": {
         "start": "node dist/src/index.js",

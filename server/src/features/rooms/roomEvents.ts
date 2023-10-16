@@ -33,7 +33,7 @@ export default function subscribeToFeatures() {
             const newRoomId = createNewRoom(userName);
             socket.leave(DefaultRooms.lobby);
             acknowledgeCreating(newRoomId);
-            io.in(DefaultRooms.lobby).emit(
+            io.in(DefaultRooms.lookingForRoom).emit(
                 ServerToClient.RoomCreated,
                 getRoomPreview(newRoomId)
             );
@@ -55,7 +55,7 @@ export default function subscribeToFeatures() {
             });
             manageGameSubscriptions[getRoomPreview(roomId).gameType](socket);
 
-            socket.to(roomId).emit(ServerToClient.HostJoinedRoom, userName);
+            socket.to(roomId).emit(ServerToClient.HostJoinedRoom, socket.id, userName);
             io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineIncreased);
             io.in(DefaultRooms.lookingForRoom).emit(
                 ServerToClient.RoomPreviewUpdated,
@@ -77,7 +77,9 @@ export default function subscribeToFeatures() {
                 acknowledgeName(nameValidated);
                 manageGameSubscriptions[getRoomPreview(roomId).gameType](socket);
 
-                socket.to(roomId).emit(ServerToClient.GuestJoinedRoom, nameValidated);
+                socket
+                    .to(roomId)
+                    .emit(ServerToClient.GuestJoinedRoom, socket.id, nameValidated);
                 io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineIncreased);
                 io.in(DefaultRooms.lookingForRoom).emit(
                     ServerToClient.RoomPreviewUpdated,
@@ -156,7 +158,7 @@ export default function subscribeToFeatures() {
 
         const onLeave = (userType: UserType, roomId: string) => {
             if (!roomId) return;
-            const { userName, updatedRoomPreview } = clearUserFromRoom(socket.id, roomId);
+            const { updatedRoomPreview } = clearUserFromRoom(socket.id, roomId);
             socket.leave(roomId);
             changeRoomProp(roomId, 'readyStatus', false);
             io.in(roomId).emit(ServerToClient.GuestIsNotReady);
@@ -168,9 +170,9 @@ export default function subscribeToFeatures() {
             manageGameSubscriptions['choosing'](socket); // unsubscribes
 
             if (userType === 'guest') {
-                io.in(roomId).emit(ServerToClient.GuestLeftRoom, userName);
+                io.in(roomId).emit(ServerToClient.GuestLeftRoom, socket.id);
             } else {
-                io.in(roomId).emit(ServerToClient.HostLeftRoom, userName);
+                io.in(roomId).emit(ServerToClient.HostLeftRoom, socket.id);
                 setTimeout(() => {
                     if (deleteRoomWithNoHost(roomId)) {
                         io.in(DefaultRooms.lobby).emit(

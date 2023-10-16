@@ -1,7 +1,11 @@
 import {
     subscribeToTicTacToeEvents,
     unsubscribeFromTTT,
-} from 'src/features/tic-tac-toe/tic-tac-toeEvents';
+} from '../features/tic-tac-toe/tic-tac-toeEvents';
+import {
+    subscribeToBatleshipsEvents,
+    unsubscribeFromBattleships,
+} from '../features/battleships/battleshipEvents';
 import type {
     Room,
     TicTacToe,
@@ -9,10 +13,6 @@ import type {
     GameType,
     Subscription,
 } from '../types/types';
-import {
-    subscribeToBatleshipsEvents,
-    unsubscribeFromBattleships,
-} from 'src/features/battleships/battleshipEvents';
 
 export const rooms = new Map<string, Room>();
 export const games: Record<

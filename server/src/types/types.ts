@@ -25,7 +25,7 @@ export enum ServerToClient {
     RoomPreviewUpdated = 'roomPreviewUpdated',
     HostJoinedRoom = 'hostJoined',
     GuestJoinedRoom = 'guestJoined',
-    RoomGameChanged = 'roomgGameChanged',
+    RoomGameChanged = 'roomGameChanged',
     GuestIsReady = 'guestIsReady',
     GuestIsNotReady = 'guestIsNotReady',
     GameStarts = 'gameStarts',
@@ -80,15 +80,15 @@ export type ClientToServerEvents = {
 };
 
 export type ServerToClientEvents = {
-    [ServerToClient.RoomCreated]: (roomPreview: RoomPreview) => void;
     [ServerToClient.OnlineIncreased]: () => void;
     [ServerToClient.OnlineDecreased]: () => void;
-    [ServerToClient.HostJoinedRoom]: (userName: string) => void;
-    [ServerToClient.GuestJoinedRoom]: (userName: string) => void;
-    [ServerToClient.HostLeftRoom]: (userName: string) => void;
+    [ServerToClient.RoomCreated]: (roomPreview: RoomPreview) => void;
     [ServerToClient.RoomDeleted]: (roomId: string) => void;
-    [ServerToClient.GuestLeftRoom]: (userName: string) => void;
     [ServerToClient.RoomPreviewUpdated]: (updatedRoom: UpdatedRoomPreview) => void;
+    [ServerToClient.HostJoinedRoom]: (userId: string, userName: string) => void;
+    [ServerToClient.GuestJoinedRoom]: (userId: string, userName: string) => void;
+    [ServerToClient.HostLeftRoom]: (userId: string) => void;
+    [ServerToClient.GuestLeftRoom]: (userId: string) => void;
     [ServerToClient.RoomGameChanged]: (newGameType: GameType) => void;
     [ServerToClient.GuestIsReady]: () => void;
     [ServerToClient.GuestIsNotReady]: () => void;
@@ -144,20 +144,22 @@ export type GameState = 'in lobby' | 'playing' | 'viewing results';
 
 export type UpdatedGameState<T extends TicTacToe | BattleShips> = {
     newMove: T extends TicTacToe ? TTTMove : BattleShipsMove;
-    playerToMove: UserType;
+    playerToMove: UserType | null;
 };
 
 export type GameWon<T extends TicTacToe | BattleShips> = {
-    winner: UserType;
+    winner: UserType | 'draw';
     newScore: [number, number];
     winningMove?: T extends TicTacToe ? TTTMove : BattleShipsMove;
 };
 
 export type TicTacToeCell = '' | 'X' | 'O';
 export type TicTacToe = {
-    playerToMove: UserType;
+    playerToMove: UserType | null;
     boardState: TicTacToeCell[][];
     lengthToWin: 4;
+    winner?: UserType | 'draw';
+    winningMove?: TTTMove;
 };
 
 export type TTTMove = {
@@ -174,6 +176,8 @@ export type BattleShips = {
     guestBorad: BattleShipsBoard;
     hostHealth: number; // initial of 17 = 1 of 5-square, 1 of 4, 2 of 3, 1 of 2 ships
     guestHealth: number;
+    winner?: UserType;
+    winningMove?: BattleShipsMove;
 };
 
 export type BattleShipsMove = {

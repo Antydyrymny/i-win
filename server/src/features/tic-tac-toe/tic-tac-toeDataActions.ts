@@ -26,18 +26,26 @@ export const processMove = (
     const winningMove = validateBoard(game.boardState, move, game.lengthToWin);
     let gameWon: GameWon<TicTacToe> | false = false;
     if (winningMove) {
-        const winner = swapTurns(game.playerToMove);
+        newGameState.playerToMove = null;
         const room = rooms.get(roomId);
-        const [hostsPoints, guestsPoints] = room.score;
-        room.score =
-            winner === 'host'
-                ? [hostsPoints + 1, guestsPoints]
-                : [hostsPoints, guestsPoints + 1];
-        gameWon = {
-            winner,
-            newScore: room.score,
-            winningMove,
-        };
+        if (winningMove === 'draw') {
+            gameWon = {
+                winner: 'draw',
+                newScore: room.score,
+            };
+        } else {
+            const winner = swapTurns(game.playerToMove);
+            const [hostsPoints, guestsPoints] = room.score;
+            room.score =
+                winner === 'host'
+                    ? [hostsPoints + 1, guestsPoints]
+                    : [hostsPoints, guestsPoints + 1];
+            gameWon = {
+                winner,
+                newScore: room.score,
+                winningMove,
+            };
+        }
     }
 
     return { newGameState, gameWon };
@@ -58,18 +66,22 @@ const validateBoard = (
     board: TicTacToeCell[][],
     move: TTTMove,
     lengthToWin: number
-): TTTMove | null => {
+): TTTMove | 'draw' | false => {
     const yLen = board.length;
     const xLen = board[0].length;
     const queue: [number, number, number][] = [[...move.coordinates, 1]];
+    const visited = new Set<string>();
+    visited.add(`${move.coordinates[0]},${move.coordinates[1]}`);
 
     while (queue.length) {
         const [y, x, curLen] = queue.shift();
+        visited.add(`${y},${x}`);
         if (curLen === lengthToWin) return { type: move.type, coordinates: [y, x] };
         directions.forEach((direction) => {
             const newY = y + direction[0];
             const newX = x + direction[1];
             if (
+                !visited.has(`${newY},${newX}`) &&
                 newY >= 0 &&
                 newY < yLen &&
                 newX >= 0 &&
@@ -80,5 +92,6 @@ const validateBoard = (
         });
     }
 
-    return null;
+    if (!board.flat().includes('')) return 'draw';
+    return false;
 };

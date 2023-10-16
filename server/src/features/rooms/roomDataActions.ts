@@ -33,12 +33,16 @@ export const getRoomPreview = (roomId: string): RoomPreview => {
 
 export const validateGuestName = ({ roomId, userName }): string => {
     const room = rooms.get(roomId);
-    return userName === room.name.split(`'s room`)[0] ||
+    let validatedName = userName;
+    while (
+        validatedName === room.name.split(`'s room`)[0] ||
         Array.from(room.players.values())
             .map((player) => player.name)
-            .includes(userName)
-        ? userName + '#' + uuidv4().slice(0, 2)
-        : userName;
+            .includes(validatedName)
+    ) {
+        validatedName = userName + '#' + uuidv4().slice(0, 2);
+    }
+    return validatedName;
 };
 
 export const createNewRoom = (userName: string) => {

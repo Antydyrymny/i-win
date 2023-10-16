@@ -7,7 +7,7 @@ import {
 import { EndpointBuilder } from '@reduxjs/toolkit/dist/query/endpointDefinitions';
 import getSocket from '../app/services/getSocket';
 
-export type Socket = ReturnType<typeof getSocket>;
+export type ApiSocket = ReturnType<typeof getSocket>;
 export type ApiBuilder = EndpointBuilder<
     BaseQueryFn<
         string | FetchArgs,
@@ -16,7 +16,7 @@ export type ApiBuilder = EndpointBuilder<
         object,
         FetchBaseQueryMeta
     >,
-    'AllRooms' | 'MyRoom' | 'GameState',
+    'AllRooms' | 'MyRoom' | 'GameState' | 'OnlineNumber',
     'api'
 >;
 
@@ -109,20 +109,22 @@ export type GameState = 'in lobby' | 'playing' | 'viewing results';
 
 export type UpdatedGameState<T extends TicTacToe | BattleShips> = {
     newMove: T extends TicTacToe ? TTTMove : BattleShipsMove;
-    playerToMove: UserType;
+    playerToMove: UserType | null;
 };
 
 export type GameWon<T extends TicTacToe | BattleShips> = {
-    winner: UserType;
+    winner: UserType | 'draw';
     newScore: [number, number];
     winningMove?: T extends TicTacToe ? TTTMove : BattleShipsMove;
 };
 
 export type TicTacToeCell = '' | 'X' | 'O';
 export type TicTacToe = {
-    playerToMove: UserType;
+    playerToMove: UserType | null;
     boardState: TicTacToeCell[][];
     lengthToWin: 4;
+    winner?: UserType | 'draw';
+    winningMove?: TTTMove;
 };
 
 export type TTTMove = {
@@ -139,6 +141,8 @@ export type BattleShips = {
     guestBorad: BattleShipsBoard;
     hostHealth: number; // initial of 17 = 1 of 5-square, 1 of 4, 2 of 3, 1 of 2 ships
     guestHealth: number;
+    winner?: UserType;
+    winningMove?: BattleShipsMove;
 };
 
 export type BattleShipsMove = {

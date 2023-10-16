@@ -1,3 +1,6 @@
+import { Socket } from 'socket.io';
+import { DefaultEventsMap } from 'socket.io/dist/typed-events';
+
 export enum ClientToServer {
     Connection = 'connection',
     RequestingOnlineStatus = 'requestingOnlineStatus',
@@ -26,20 +29,24 @@ export enum ServerToClient {
     GuestIsReady = 'guestIsReady',
     GuestIsNotReady = 'guestIsNotReady',
     GameStarts = 'gameStarts',
-    PlayerWins = 'playerWins',
     HostLeftRoom = 'hostLeft',
     GuestLeftRoom = 'guestLeft',
     RoomDeleted = 'roomDeleted',
 }
 
 export enum TTTClientToServer {
-    RequestingGameState = 'TTC_RequestringState',
-    MakingMove = 'TTC_MakingMove',
+    RequestingGameState = 'TTT_RequestringState',
+    MakingMove = 'TTT_MakingMove',
 }
 
-export enum TTCServerToClient {
-    PlayerMoved = 'TTC_PlayerMoved',
+export enum TTTServerToClient {
+    PlayerMoved = 'TTT_PlayerMoved',
+    GameWon = 'TTT_gameWon',
 }
+
+export enum BSClientToServer {}
+
+export enum BSServerToClient {}
 
 export type ClientToServerEvents = {
     [ClientToServer.RequestingOnlineStatus]: (
@@ -69,7 +76,7 @@ export type ClientToServerEvents = {
     [TTTClientToServer.RequestingGameState]: (
         acknowledgeTTCState: (gameState: TicTacToe) => void
     ) => void;
-    [TTTClientToServer.MakingMove]: () => void;
+    [TTTClientToServer.MakingMove]: (move: TTTMove) => void;
 };
 
 export type ServerToClientEvents = {
@@ -86,7 +93,8 @@ export type ServerToClientEvents = {
     [ServerToClient.GuestIsReady]: () => void;
     [ServerToClient.GuestIsNotReady]: () => void;
     [ServerToClient.GameStarts]: () => void;
-    [ServerToClient.PlayerWins]: (playerName: string, newScore: [number, number]) => void;
+    [TTTServerToClient.PlayerMoved]: (newGameState: UpdatedGameState<TicTacToe>) => void;
+    [TTTServerToClient.GameWon]: (gameWon: GameWon<TicTacToe>) => void;
 };
 
 export enum DefaultRooms {
@@ -134,13 +142,25 @@ export type Room = {
 export type GameType = 'choosing' | 'ticTacToe' | 'battleships';
 export type GameState = 'in lobby' | 'playing' | 'viewing results';
 
+export type UpdatedGameState<T extends TicTacToe | BattleShips> = {
+    newMove: T extends TicTacToe ? TTTMove : BattleShipsMove;
+    playerToMove: UserType;
+};
+
+export type GameWon<T extends TicTacToe | BattleShips> = {
+    winner: UserType;
+    newScore: [number, number];
+    winningMove?: T extends TicTacToe ? TTTMove : BattleShipsMove;
+};
+
 export type TicTacToeCell = '' | 'X' | 'O';
 export type TicTacToe = {
     playerToMove: UserType;
     boardState: TicTacToeCell[][];
+    lengthToWin: 4;
 };
 
-export type TTCMove = {
+export type TTTMove = {
     type: 'X' | 'O';
     coordinates: [number, number];
 };
@@ -156,7 +176,16 @@ export type BattleShips = {
     guestHealth: number;
 };
 
-export type BattleShipsMobe = {
+export type BattleShipsMove = {
     player: UserType;
     coordinates: [number, number];
 };
+
+export type MySocket = Socket<
+    ClientToServerEvents,
+    ServerToClientEvents,
+    DefaultEventsMap,
+    unknown
+>;
+
+export type Subscription = (socket: MySocket) => void;

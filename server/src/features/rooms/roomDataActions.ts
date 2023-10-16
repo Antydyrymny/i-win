@@ -131,6 +131,7 @@ const gameInitializer = {
     ticTacToe: (): TicTacToe => ({
         playerToMove: Math.random() > 0.5 ? 'host' : 'guest',
         boardState: Array.from(new Array(10), () => Array.from(new Array(10)).fill('')),
+        lengthToWin: 4,
     }),
     battleShips: (): BattleShips => ({
         playerToMove: Math.random() > 0.5 ? 'host' : 'guest',

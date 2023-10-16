@@ -5,7 +5,8 @@ import {
     DefaultRooms,
     UserType,
 } from '../../types/types';
-import { rooms, playersInGame } from 'src/data/data';
+import { rooms, playersInGame, manageGameSubscriptions } from '../../data/data';
+import { createUsersRoomGetter } from '../utils';
 import {
     createNewRoom,
     getRoomPreview,
@@ -17,17 +18,11 @@ import {
     getUserType,
     changeRoomProp,
     createGame,
-} from './roomActions';
+} from './roomDataActions';
 
 export default function subscribeToRoomEvents() {
     io.on(ClientToServer.Connection, (socket) => {
-        const getUsersRoom = () =>
-            Array.from(socket.rooms).find(
-                (room) =>
-                    room !== socket.id &&
-                    room !== DefaultRooms.lobby &&
-                    room !== DefaultRooms.lookingForRoom
-            );
+        const getUsersRoom = createUsersRoomGetter(socket);
 
         socket.on(ClientToServer.RequestingOnlineStatus, (acknowledgeOnlineStatus) => {
             socket.join(DefaultRooms.lobby);
@@ -58,6 +53,8 @@ export default function subscribeToRoomEvents() {
                 userName,
                 userType: 'host',
             });
+            manageGameSubscriptions[getRoomPreview(roomId).gameType](socket);
+
             socket.to(roomId).emit(ServerToClient.HostJoinedRoom, userName);
             io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineIncreased);
             io.in(DefaultRooms.lookingForRoom).emit(
@@ -78,6 +75,8 @@ export default function subscribeToRoomEvents() {
                     userType: 'guest',
                 });
                 acknowledgeName(nameValidated);
+                manageGameSubscriptions[getRoomPreview(roomId).gameType](socket);
+
                 socket.to(roomId).emit(ServerToClient.GuestJoinedRoom, nameValidated);
                 io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineIncreased);
                 io.in(DefaultRooms.lookingForRoom).emit(
@@ -94,12 +93,24 @@ export default function subscribeToRoomEvents() {
 
         socket.on(ClientToServer.ChangingGame, (gameType) => {
             const roomId = getUsersRoom();
-            const updatedRoomPreview = changeRoomProp(roomId, 'gameType', gameType);
+            let updatedRoomPreview = changeRoomProp(roomId, 'gameType', gameType);
+            manageGameSubscriptions[gameType](socket);
+            changeRoomProp(roomId, 'readyStatus', false);
+
             io.in(roomId).emit(ServerToClient.RoomGameChanged, gameType);
+            io.in(roomId).emit(ServerToClient.GuestIsNotReady);
             io.in(DefaultRooms.lookingForRoom).emit(
                 ServerToClient.RoomPreviewUpdated,
                 updatedRoomPreview
             );
+
+            if (getRoomPreview(roomId).gameState !== 'in lobby') {
+                updatedRoomPreview = changeRoomProp(roomId, 'gameState', 'in lobby');
+                io.in(DefaultRooms.lookingForRoom).emit(
+                    ServerToClient.RoomPreviewUpdated,
+                    updatedRoomPreview
+                );
+            }
         });
 
         socket.on(ClientToServer.GuestCheksReady, () => {
@@ -117,6 +128,7 @@ export default function subscribeToRoomEvents() {
         socket.on(ClientToServer.StartingGame, () => {
             const roomId = getUsersRoom();
             const updatedRoomPreview = createGame(roomId);
+
             io.in(roomId).emit(ServerToClient.GameStarts);
             io.in(DefaultRooms.lookingForRoom).emit(
                 ServerToClient.RoomPreviewUpdated,
@@ -146,11 +158,15 @@ export default function subscribeToRoomEvents() {
             if (!roomId) return;
             const { userName, updatedRoomPreview } = clearUserFromRoom(socket.id, roomId);
             socket.leave(roomId);
+            changeRoomProp(roomId, 'readyStatus', false);
+            io.in(roomId).emit(ServerToClient.GuestIsNotReady);
             io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineDecreased);
             io.in(DefaultRooms.lookingForRoom).emit(
                 ServerToClient.RoomPreviewUpdated,
                 updatedRoomPreview
             );
+            manageGameSubscriptions['choosing'](socket); // unsubscribes
+
             if (userType === 'guest') {
                 io.in(roomId).emit(ServerToClient.GuestLeftRoom, userName);
             } else {

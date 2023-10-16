@@ -4,12 +4,26 @@ import { Spinner } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 
+const LazyHome = React.lazy(() => import('./pages/home/Home'));
+const LazyJoinRoom = React.lazy(() => import('./pages/joinRoom/JoinRoom'));
+const LazyCreateRoom = React.lazy(() => import('./pages/createRoom/CreateRoom'));
+const LazyRoomLayout = React.lazy(() => import('./pages/room/RoomLayout'));
+const LazyRoom = React.lazy(() => import('./pages/room/Room'));
+const LazyTicTacToe = React.lazy(() => import('./pages/ticTacToe/TicTacToe'));
+const LazyBattleships = React.lazy(() => import('./pages/battleships/Battleships'));
+
 function App() {
     return (
         <Suspense fallback={<Spinner />}>
             <Routes>
-                <Route path='/' element={<></>} />
-                <Route path='/room/:roomId' element={<></>} />
+                <Route path='/' element={<LazyHome />} />
+                <Route path='/join' element={<LazyJoinRoom />} />
+                <Route path='/create' element={<LazyCreateRoom />} />
+                <Route path='/room/:roomId' element={<LazyRoomLayout />}>
+                    <Route index element={<LazyRoom />} />
+                    <Route path='/ticTacToe' element={<LazyTicTacToe />} />
+                    <Route path='/battleships' element={<LazyBattleships />} />
+                </Route>
                 <Route path='*' element={<Navigate to={'/'} replace />} />
             </Routes>
         </Suspense>

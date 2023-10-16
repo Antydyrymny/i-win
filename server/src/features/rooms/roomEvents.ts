@@ -20,7 +20,7 @@ import {
     createGame,
 } from './roomDataActions';
 
-export default function subscribeToRoomEvents() {
+export default function subscribeToFeatures() {
     io.on(ClientToServer.Connection, (socket) => {
         const getUsersRoom = createUsersRoomGetter(socket);
 

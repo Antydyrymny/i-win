@@ -1,0 +1,26 @@
+// Colors
+$text-color-main: rgb(148, 163, 184);
+$text-color-subHighlight: rgb(203, 213, 225);
+$text-color-highlight: rgb(226, 232, 240);
+$text-color-subtle: rgb(100, 116, 139);
+$text-color-semiSubtle: rgb(148, 163, 184);
+$text-color-lightGreen: rgb(94, 234, 212);
+$text-color-selection: rgb(19 78 74);
+$bg-color-main: rgb(15 23 42);
+$bg-color-lightGreen: rgba(45, 212, 191, 0.1);
+$bg-color-transperent: rgba(30, 41, 59, 0.5);
+$bg-color-semiTransperent: rgba(15, 23, 42, 0.75);
+$indicator-color: rgb(71, 85, 105);
+$swg-color: rgb(148, 163, 184);
+$swg-color-hover: rgb(226 232 240);
+$border-color: rgba(226, 232, 240, 0.1);
+$border-color-hover: rgba(226, 232, 240, 0.3);
+
+// Shadows
+$border-drop-shadow: drop-shadow(0 10px 8px rgba(0, 0, 0, 0.04))
+    drop-shadow(0 4px 3px rgba(0, 0, 0, 0.1));
+$border-shadow: inset 0 1px 0 0 rgba(148, 163, 184, 0.1);
+
+// Media breakpoints
+$breakpoint-small: 1023px;
+$breakpoint-mobile: 767px;

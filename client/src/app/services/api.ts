@@ -13,7 +13,7 @@ const apiSlice = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl,
     }),
-    tagTypes: ['AllRooms', 'userId'],
+    tagTypes: ['AllRooms', 'MyRoom', 'GameState'],
     endpoints: () => ({}),
 });
 

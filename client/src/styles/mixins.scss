@@ -1,0 +1,28 @@
+@mixin flexbox($direction: row, $justify-content: center, $align-items: center) {
+    display: flex;
+    flex-direction: $direction;
+    justify-content: $justify-content;
+    align-items: $align-items;
+}
+
+@mixin transition(
+    $duration,
+    $property: all,
+    $timingFunction: cubic-bezier(0.4, 0, 0.2, 1)
+) {
+    transition-duration: $duration;
+    transition-property: $property;
+    transition-timing-function: $timingFunction;
+}
+
+@mixin svgArrow($align-items: flex-end) {
+    display: inline-flex;
+    align-items: $align-items;
+    white-space: nowrap;
+    gap: 0.25rem;
+    svg {
+        @include transition(0.15s, transform);
+        height: 1rem;
+        width: 1rem;
+    }
+}

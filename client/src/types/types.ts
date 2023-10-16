@@ -6,6 +6,7 @@ import {
 } from '@reduxjs/toolkit/query/react';
 import { EndpointBuilder } from '@reduxjs/toolkit/dist/query/endpointDefinitions';
 import getSocket from '../app/services/getSocket';
+import { userNameKey, userTypeKey } from '../data/localStorageKeys';
 
 export type ApiSocket = ReturnType<typeof getSocket>;
 export type ApiBuilder = EndpointBuilder<
@@ -19,6 +20,11 @@ export type ApiBuilder = EndpointBuilder<
     'AllRooms' | 'MyRoom' | 'GameState' | 'OnlineNumber',
     'api'
 >;
+
+export type LocalStorageSchema = {
+    [userNameKey]: string;
+    [userTypeKey]: UserType;
+};
 
 export enum ClientToServer {
     Connection = 'connection',

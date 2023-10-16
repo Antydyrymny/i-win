@@ -104,7 +104,7 @@ const apiSlice = createApi({
                 return { data: undefined };
             },
         }),
-        tttMakingMove: builder.mutation<void, TTTMove>({
+        makeTTTMove: builder.mutation<void, TTTMove>({
             queryFn: (move) => {
                 socket.emit(TTTClientToServer.MakingMove, move);
                 return { data: undefined };
@@ -114,3 +114,20 @@ const apiSlice = createApi({
 });
 
 export default apiSlice;
+
+export const {
+    useSubscribeToOnlineStatusQuery,
+    useCreateRoomMutation,
+    useSubscribeToAllRoomsQuery,
+    useHostJoinRoomMutation,
+    useGuestJoinRoomMutation,
+    useSubscribeToRoomEventsQuery,
+    useHostLeaveMutation,
+    useGuestLeaveMutation,
+    useChangeGameMutation,
+    useCheckReadyMutation,
+    useUncheckReadyMutation,
+    useStartGameMutation,
+    useSubscribeToTicTacToeQuery,
+    useMakeTTTMoveMutation,
+} = apiSlice;

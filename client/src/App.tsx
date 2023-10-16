@@ -21,8 +21,8 @@ function App() {
                 <Route path='/create' element={<LazyCreateRoom />} />
                 <Route path='/room/:roomId' element={<LazyRoomLayout />}>
                     <Route index element={<LazyRoom />} />
-                    <Route path='/ticTacToe' element={<LazyTicTacToe />} />
-                    <Route path='/battleships' element={<LazyBattleships />} />
+                    <Route path='ticTacToe' element={<LazyTicTacToe />} />
+                    <Route path='battleships' element={<LazyBattleships />} />
                 </Route>
                 <Route path='*' element={<Navigate to={'/'} replace />} />
             </Routes>

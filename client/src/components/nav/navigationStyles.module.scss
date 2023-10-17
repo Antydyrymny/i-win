@@ -1,0 +1,32 @@
+@use '../../styles/index.scss' as *;
+
+.wrapper {
+    height: 4rem;
+    background: $bg-color-nav;
+    box-shadow: 0 3px 10px 0 rgba(0, 0, 0, 0.3);
+}
+
+.I,
+.win,
+.dot {
+    font-weight: 900;
+}
+
+.I {
+    color: $text-color-mainOrange;
+}
+
+.win {
+    color: $text-color-mainYellow;
+}
+
+.dot {
+    color: $text-color-semiSubtle;
+}
+
+.settings {
+    gap: 1rem;
+    img {
+        cursor: pointer;
+    }
+}

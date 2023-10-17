@@ -5,11 +5,16 @@ import {
     DefaultRooms,
     UserType,
 } from '../../types/types';
-import { rooms, playersInGame, manageGameSubscriptions } from '../../data/data';
+import {
+    playersInGame,
+    manageGameSubscriptions,
+    roomDoNotExistErr,
+} from '../../data/data';
 import { createUsersRoomGetter } from '../utils';
 import {
     createNewRoom,
     getRoomPreview,
+    validateRoom,
     getAllRooms,
     populateRoom,
     validateGuestName,
@@ -18,6 +23,7 @@ import {
     getUserType,
     changeRoomProp,
     createGame,
+    getClientRoomData,
 } from './roomDataActions';
 
 export default function subscribeToFeatures() {
@@ -45,27 +51,45 @@ export default function subscribeToFeatures() {
             acknowledgeAllRooms(getAllRooms());
         });
 
-        socket.on(ClientToServer.HostJoiningRoom, ({ roomId, userName }) => {
-            socket.join(roomId);
-            const updatedRoomPreview = populateRoom({
-                roomId,
-                userId: socket.id,
-                userName,
-                userType: 'host',
-            });
-            manageGameSubscriptions[getRoomPreview(roomId).gameType](socket);
-
-            socket.to(roomId).emit(ServerToClient.HostJoinedRoom, socket.id, userName);
-            io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineIncreased);
-            io.in(DefaultRooms.lookingForRoom).emit(
-                ServerToClient.RoomPreviewUpdated,
-                updatedRoomPreview
-            );
+        socket.on(ClientToServer.VerifyUsersNumber, (roomId, acknowledgeUsersNumber) => {
+            acknowledgeUsersNumber(getRoomPreview(roomId).playerCount);
         });
+
+        socket.on(
+            ClientToServer.HostJoiningRoom,
+            ({ roomId, userName }, acknowledgeName) => {
+                if (!validateRoom(roomId)) {
+                    acknowledgeName(roomDoNotExistErr);
+                    return;
+                }
+                socket.join(roomId);
+                const updatedRoomPreview = populateRoom({
+                    roomId,
+                    userId: socket.id,
+                    userName,
+                    userType: 'host',
+                });
+                acknowledgeName(userName);
+                manageGameSubscriptions[getRoomPreview(roomId).gameType](socket);
+
+                socket
+                    .to(roomId)
+                    .emit(ServerToClient.HostJoinedRoom, socket.id, userName);
+                io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineIncreased);
+                io.in(DefaultRooms.lookingForRoom).emit(
+                    ServerToClient.RoomPreviewUpdated,
+                    updatedRoomPreview
+                );
+            }
+        );
 
         socket.on(
             ClientToServer.GuestJoiningRoom,
             ({ roomId, userName }, acknowledgeName) => {
+                if (!validateRoom(roomId)) {
+                    acknowledgeName(roomDoNotExistErr);
+                    return;
+                }
                 socket.join(roomId);
                 const nameValidated = validateGuestName({ roomId, userName });
                 const updatedRoomPreview = populateRoom({
@@ -90,7 +114,7 @@ export default function subscribeToFeatures() {
 
         socket.on(ClientToServer.RequestingRoomData, (acknowledgeRoomData) => {
             const roomId = getUsersRoom();
-            acknowledgeRoomData(rooms.get(roomId));
+            acknowledgeRoomData(getClientRoomData(roomId));
         });
 
         socket.on(ClientToServer.ChangingGame, (gameType) => {
@@ -158,15 +182,17 @@ export default function subscribeToFeatures() {
 
         const onLeave = (userType: UserType, roomId: string) => {
             if (!roomId) return;
-            const { updatedRoomPreview } = clearUserFromRoom(socket.id, roomId);
+            const updatedRoomPreview = clearUserFromRoom(socket.id, roomId);
             socket.leave(roomId);
-            changeRoomProp(roomId, 'readyStatus', false);
+            if (updatedRoomPreview) {
+                changeRoomProp(roomId, 'readyStatus', false);
+                io.in(DefaultRooms.lookingForRoom).emit(
+                    ServerToClient.RoomPreviewUpdated,
+                    updatedRoomPreview
+                );
+            }
             io.in(roomId).emit(ServerToClient.GuestIsNotReady);
             io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineDecreased);
-            io.in(DefaultRooms.lookingForRoom).emit(
-                ServerToClient.RoomPreviewUpdated,
-                updatedRoomPreview
-            );
             manageGameSubscriptions['choosing'](socket); // unsubscribes
 
             if (userType === 'guest') {
@@ -175,12 +201,13 @@ export default function subscribeToFeatures() {
                 io.in(roomId).emit(ServerToClient.HostLeftRoom, socket.id);
                 setTimeout(() => {
                     if (deleteRoomWithNoHost(roomId)) {
-                        io.in(DefaultRooms.lobby).emit(
+                        io.in(DefaultRooms.lookingForRoom).emit(
                             ServerToClient.RoomDeleted,
                             roomId
                         );
+                        io.in(roomId).emit(ServerToClient.RoomDeleted, roomId);
                     }
-                }, 7000);
+                }, 10000);
             }
         };
     });

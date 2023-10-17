@@ -32,3 +32,5 @@ export const manageGameSubscriptions: Record<GameType, Subscription> = {
         unsubscribeFromBattleships(socket);
     },
 };
+
+export const roomDoNotExistErr = '_room_do_not_exist';

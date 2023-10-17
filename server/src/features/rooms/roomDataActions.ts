@@ -2,6 +2,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { rooms, playersInGame, games } from '../../data/data';
 import type {
     BattleShips,
+    ClientRoom,
     Room,
     RoomPreview,
     TicTacToe,
@@ -30,6 +31,19 @@ export const getRoomPreview = (roomId: string): RoomPreview => {
         gameState: room.gameState,
     };
 };
+
+export const getClientRoomData = (roomId: string): ClientRoom => {
+    const room = rooms.get(roomId);
+    return {
+        ...room,
+        players: Array.from(room.players.entries()).map((entry) => ({
+            id: entry[0],
+            ...entry[1],
+        })),
+    };
+};
+
+export const validateRoom = (roomId: string) => rooms.has(roomId);
 
 export const validateGuestName = ({ roomId, userName }): string => {
     const room = rooms.get(roomId);
@@ -75,7 +89,6 @@ export const populateRoom = ({
     if (!room) createNewRoom(userName);
     room.players.set(userId, { name: userName, userType });
     playersInGame[0]++;
-
     return getUpdatedRoomPreview(roomId, 'playerCount');
 };
 
@@ -98,11 +111,11 @@ export const changeRoomProp = <T extends PropToUpdate>(
 
 export const clearUserFromRoom = (userId: string, roomId: string) => {
     const room = rooms.get(roomId);
-    const userName = room.players.get(userId).name;
+    if (!room) return;
     room.players.delete(userId);
     playersInGame[0]--;
 
-    return { userName, updatedRoomPreview: getUpdatedRoomPreview(roomId, 'playerCount') };
+    return getUpdatedRoomPreview(roomId, 'playerCount');
 };
 
 export const deleteRoomWithNoHost = (roomId: string) => {
@@ -121,8 +134,9 @@ export const deleteRoomWithNoHost = (roomId: string) => {
     return false;
 };
 
-export const getUserType = (userId: string, roomId: string): UserType | undefined =>
-    rooms.get(roomId)?.players?.get(userId)?.userType;
+export const getUserType = (userId: string, roomId: string): UserType | undefined => {
+    return rooms.get(roomId)?.players?.get(userId)?.userType;
+};
 
 export const createGame = (roomId: string) => {
     const room = rooms.get(roomId);
@@ -149,7 +163,10 @@ const gameInitializer = {
 const getUpdatedRoomPreview = (
     roomId: string,
     updatedParam: UpdatedPropToBroadcast
-): UpdatedRoomPreview => ({
-    id: roomId,
-    [updatedParam]: rooms.get(roomId)[updatedParam],
-});
+): UpdatedRoomPreview =>
+    updatedParam === 'playerCount'
+        ? { id: roomId, playerCount: rooms.get(roomId).players.size }
+        : {
+              id: roomId,
+              [updatedParam]: rooms.get(roomId)[updatedParam],
+          };

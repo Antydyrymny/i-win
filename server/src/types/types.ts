@@ -6,6 +6,7 @@ export enum ClientToServer {
     RequestingOnlineStatus = 'requestingOnlineStatus',
     CreatingRoom = 'creatingRoom',
     RequestingAllRooms = 'requestingAllRooms',
+    VerifyUsersNumber = 'verifyUsersNumber',
     HostJoiningRoom = 'hostJoining',
     GuestJoiningRoom = 'guestJoining',
     RequestingRoomData = 'requestingRoomData',
@@ -59,13 +60,20 @@ export type ClientToServerEvents = {
     [ClientToServer.RequestingAllRooms]: (
         acknowledgeAllRooms: (rooms: RoomPreview[]) => void
     ) => void;
-    [ClientToServer.HostJoiningRoom]: (joinRoomRequest: JoinRoomRequest) => void;
+    [ClientToServer.VerifyUsersNumber]: (
+        roomId: string,
+        acknowledgeUsersNumber: (usersNumber: number) => void
+    ) => void;
+    [ClientToServer.HostJoiningRoom]: (
+        joinRoomRequest: JoinRoomRequest,
+        acknowledgeName: (newName: string) => void
+    ) => void;
     [ClientToServer.GuestJoiningRoom]: (
         joinRoomRequest: JoinRoomRequest,
         acknowledgeName: (newName: string) => void
     ) => void;
     [ClientToServer.RequestingRoomData]: (
-        acknowledgeRoomData: (roomData: Room) => void
+        acknowledgeRoomData: (roomData: ClientRoom) => void
     ) => void;
     [ClientToServer.HostLeavingRoom]: () => void;
     [ClientToServer.GuestLeavingRoom]: () => void;
@@ -109,6 +117,10 @@ export type User = {
     name: string;
 };
 
+export type ClientUser = User & {
+    id: string;
+};
+
 export type RoomPreview = {
     id: string;
     name: string;
@@ -137,6 +149,17 @@ export type Room = {
     gameState: GameState;
     gameId: string | null;
     score: [number, number];
+};
+
+export type ClientRoom = {
+    name: string;
+    players: ClientUser[];
+    gameType: GameType;
+    readyStatus: boolean;
+    gameState: GameState;
+    gameId: string | null;
+    score: [number, number];
+    deleted?: true;
 };
 
 export type GameType = 'choosing' | 'ticTacToe' | 'battleships';

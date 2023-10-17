@@ -6,7 +6,7 @@ import {
 } from '@reduxjs/toolkit/query/react';
 import { EndpointBuilder } from '@reduxjs/toolkit/dist/query/endpointDefinitions';
 import getSocket from '../app/services/getSocket';
-import { userNameKey, userTypeKey } from '../data/localStorageKeys';
+import { userNameKey, userTypeKey, lastRoomKey } from '../data/localStorageKeys';
 
 export type ApiSocket = ReturnType<typeof getSocket>;
 export type ApiBuilder = EndpointBuilder<
@@ -24,6 +24,7 @@ export type ApiBuilder = EndpointBuilder<
 export type LocalStorageSchema = {
     [userNameKey]: string;
     [userTypeKey]: UserType;
+    [lastRoomKey]: string;
 };
 
 export enum ClientToServer {
@@ -31,6 +32,7 @@ export enum ClientToServer {
     RequestingOnlineStatus = 'requestingOnlineStatus',
     CreatingRoom = 'creatingRoom',
     RequestingAllRooms = 'requestingAllRooms',
+    VerifyUsersNumber = 'verifyUsersNumber',
     HostJoiningRoom = 'hostJoining',
     GuestJoiningRoom = 'guestJoining',
     RequestingRoomData = 'requestingRoomData',
@@ -80,6 +82,10 @@ export type User = {
     name: string;
 };
 
+export type ClientUser = User & {
+    id: string;
+};
+
 export type RoomPreview = {
     id: string;
     name: string;
@@ -108,6 +114,18 @@ export type Room = {
     gameState: GameState;
     gameId: string | null;
     score: [number, number];
+    deleted?: true;
+};
+
+export type ClientRoom = {
+    name: string;
+    players: ClientUser[];
+    gameType: GameType;
+    readyStatus: boolean;
+    gameState: GameState;
+    gameId: string | null;
+    score: [number, number];
+    deleted?: true;
 };
 
 export type GameType = 'choosing' | 'ticTacToe' | 'battleships';

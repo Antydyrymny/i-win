@@ -1,47 +1,33 @@
-import { useState } from 'react';
+import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateRoomMutation } from '../../app/services/api';
-import { userNameKey } from '../../data/localStorageKeys';
-import { setTypedStorageItem } from '../../utils/typesLocalStorage';
-import { Container, Form, InputGroup, Button } from 'react-bootstrap';
+import useAutoLeaveRoom from '../../hooks/useAutoLeaveRoom';
+import { Container } from 'react-bootstrap';
+import NameInput from '../../components/nameInput/NameInput';
 import { toast } from 'react-toastify';
 // import styles from './createRoomStyles.module.scss';
 
 function CreateRoom() {
-    const [hostName, setHostName] = useState('');
+    useAutoLeaveRoom();
     const navigate = useNavigate();
     const [createRoom, { isLoading: isCreating, isSuccess: isCreated }] =
         useCreateRoomMutation();
 
-    const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setHostName(e.target.value);
-    };
-
-    const handleCreate = async (e: React.FormEvent<HTMLFormElement>) => {
-        e.preventDefault();
-        try {
-            const roomId = await createRoom(hostName).unwrap();
-            setTypedStorageItem(userNameKey, hostName);
-            navigate(`/room/${roomId}`);
-        } catch (error) {
-            toast.error('Error creating new room', {});
-        }
-    };
+    const handleCreate = useCallback(
+        async (name: string) => {
+            try {
+                const roomId = await createRoom(name).unwrap();
+                navigate(`/room/${roomId}`);
+            } catch (error) {
+                toast.error('Error creating new room', {});
+            }
+        },
+        [createRoom, navigate]
+    );
 
     return (
         <Container>
-            <Form onSubmit={handleCreate}>
-                <InputGroup>
-                    <Form.Control
-                        placeholder='Your name'
-                        value={hostName}
-                        onChange={handleNameChange}
-                    />
-                    <Button type='submit' disabled={isCreating || isCreated}>
-                        OK
-                    </Button>
-                </InputGroup>
-            </Form>
+            <NameInput onHostSubmit={handleCreate} disabled={isCreating || isCreated} />
         </Container>
     );
 }

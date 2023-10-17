@@ -47,10 +47,30 @@ const apiSlice = createApi({
             },
             invalidatesTags: ['AllRooms', 'MyRoom'],
         }),
-        hostJoinRoom: builder.mutation<void, JoinRoomRequest>({
+        verifyUsersNumber: builder.query<number, string>({
+            queryFn: (roomId) => {
+                return new Promise((resolve) => {
+                    socket.emit(
+                        ClientToServer.VerifyUsersNumber,
+                        roomId,
+                        (usersNumber: number) => {
+                            resolve({ data: usersNumber });
+                        }
+                    );
+                });
+            },
+        }),
+        hostJoinRoom: builder.mutation<string, JoinRoomRequest>({
             queryFn: (joinRoomRequest) => {
-                socket.emit(ClientToServer.HostJoiningRoom, joinRoomRequest);
-                return { data: undefined };
+                return new Promise((resolve) => {
+                    socket.emit(
+                        ClientToServer.HostJoiningRoom,
+                        joinRoomRequest,
+                        (validatedName: string) => {
+                            resolve({ data: validatedName });
+                        }
+                    );
+                });
             },
             invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom'],
         }),
@@ -73,42 +93,49 @@ const apiSlice = createApi({
                 socket.emit(ClientToServer.HostLeavingRoom);
                 return { data: undefined };
             },
+            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom'],
         }),
         guestLeave: builder.mutation<void, void>({
             queryFn: () => {
                 socket.emit(ClientToServer.GuestLeavingRoom);
                 return { data: undefined };
             },
+            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom'],
         }),
         changeGame: builder.mutation<void, GameType>({
             queryFn: (gameType) => {
                 socket.emit(ClientToServer.ChangingGame, gameType);
                 return { data: undefined };
             },
+            invalidatesTags: ['AllRooms', 'MyRoom'],
         }),
         checkReady: builder.mutation<void, void>({
             queryFn: () => {
                 socket.emit(ClientToServer.GuestCheksReady);
                 return { data: undefined };
             },
+            invalidatesTags: ['MyRoom'],
         }),
         uncheckReady: builder.mutation<void, void>({
             queryFn: () => {
                 socket.emit(ClientToServer.GuestUnchecksReady);
                 return { data: undefined };
             },
+            invalidatesTags: ['MyRoom'],
         }),
         startGame: builder.mutation<void, void>({
             queryFn: () => {
                 socket.emit(ClientToServer.StartingGame);
                 return { data: undefined };
             },
+            invalidatesTags: ['AllRooms', 'MyRoom'],
         }),
         makeTTTMove: builder.mutation<void, TTTMove>({
             queryFn: (move) => {
                 socket.emit(TTTClientToServer.MakingMove, move);
                 return { data: undefined };
             },
+            invalidatesTags: ['GameState'],
         }),
     }),
 });
@@ -122,6 +149,7 @@ export const {
     useHostJoinRoomMutation,
     useGuestJoinRoomMutation,
     useSubscribeToRoomEventsQuery,
+    useVerifyUsersNumberQuery,
     useHostLeaveMutation,
     useGuestLeaveMutation,
     useChangeGameMutation,

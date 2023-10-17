@@ -22,8 +22,9 @@ body,
 #root {
     min-height: 100vh;
     overflow-x: hidden;
-    color: $text-color-main;
+    color: $text-color-subHighlight;
     background-color: $bg-color-main;
+    font-family: 'Montserrat', sans-serif !important;
 }
 
 *::selection {
@@ -41,7 +42,6 @@ a:hover {
 }
 
 :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     font-synthesis: none;
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;

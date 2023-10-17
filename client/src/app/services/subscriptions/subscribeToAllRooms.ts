@@ -44,7 +44,12 @@ export function subscribeToAllRooms(builder: ApiBuilder, socket: ApiSocket) {
                             return draft.map((room) =>
                                 room.id === updatedRoom.id
                                     ? Object.getOwnPropertyNames(updatedRoom).reduce(
-                                          (acc, prop) => ({ ...acc, prop }),
+                                          (acc, prop) => ({
+                                              ...acc,
+                                              [prop]: updatedRoom[
+                                                  prop as keyof UpdatedRoomPreview
+                                              ],
+                                          }),
                                           room
                                       )
                                     : room

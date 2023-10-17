@@ -1,0 +1,81 @@
+@use '../../styles/index.scss' as *;
+
+.wrapper {
+    min-height: calc(100vh - 4rem);
+    @include flexbox(column);
+    background-image: url('../../assets/bg.jpg');
+    background-repeat: no-repeat;
+}
+
+.main,
+.carouselWrapper {
+    flex-grow: 1;
+    width: 100%;
+    height: 100%;
+}
+
+.main {
+    @include flexbox(row, space-between, stretch);
+}
+
+.player,
+.opponent {
+    @include flexbox(row, space-around);
+    background-color: #d25a1e;
+    min-height: 100px;
+    width: 50%;
+    width: calc(50% + 2rem);
+    font-weight: 600;
+    font-size: xx-large;
+}
+
+.player {
+    color: $text-color-mainOrange;
+    background: linear-gradient(180deg, #4609c3 -10%, #2c0e58 80%);
+    clip-path: polygon(0 0, 100% 0, calc(100% - 3rem) 100%, 0% 100%);
+}
+
+.opponent {
+    color: $text-color-mainPurple;
+    background: linear-gradient(340deg, #ea842a, #fa4010);
+    margin-left: -2rem;
+    clip-path: polygon(3rem 0, 100% 0, 100% 100%, 0% 100%);
+}
+
+.img {
+    width: 22rem;
+    height: auto;
+    border-radius: 1rem;
+    cursor: pointer;
+}
+
+.carouselWrapper {
+    @include flexbox;
+}
+
+.carousel {
+    width: 100%;
+}
+
+.description {
+    max-width: 20rem;
+    cursor: pointer;
+}
+
+.offcanvas {
+    background: $bg-color-nav;
+    color: $text-color-highlight;
+}
+
+.list {
+    list-style-type: decimal;
+    li {
+        padding: 0.5rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .description {
+        display: none;
+    }
+}

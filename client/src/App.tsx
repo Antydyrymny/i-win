@@ -1,6 +1,7 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { Spinner } from 'react-bootstrap';
+import Nav from './components/nav/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -15,6 +16,7 @@ const LazyBattleships = React.lazy(() => import('./pages/battleships/Battleships
 function App() {
     return (
         <Suspense fallback={<Spinner />}>
+            <Nav />
             <Routes>
                 <Route path='/' element={<LazyHome />} />
                 <Route path='/join' element={<LazyJoinRoom />} />

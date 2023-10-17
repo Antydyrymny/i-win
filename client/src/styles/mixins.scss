@@ -14,15 +14,3 @@
     transition-property: $property;
     transition-timing-function: $timingFunction;
 }
-
-@mixin svgArrow($align-items: flex-end) {
-    display: inline-flex;
-    align-items: $align-items;
-    white-space: nowrap;
-    gap: 0.25rem;
-    svg {
-        @include transition(0.15s, transform);
-        height: 1rem;
-        width: 1rem;
-    }
-}

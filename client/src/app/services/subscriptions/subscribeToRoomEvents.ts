@@ -1,21 +1,21 @@
 import {
     type ApiSocket,
     type ApiBuilder,
-    type Room,
     ClientToServer,
     ServerToClient,
     GameType,
     TTTServerToClient,
     GameWon,
     TicTacToe,
+    ClientRoom,
 } from '../../../types/types';
 import { toast } from 'react-toastify';
 
 export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
-    return builder.query<Room, void>({
+    return builder.query<ClientRoom, void>({
         queryFn: () => {
             return new Promise((resolve) => {
-                socket.emit(ClientToServer.RequestingRoomData, (roomData: Room) => {
+                socket.emit(ClientToServer.RequestingRoomData, (roomData: ClientRoom) => {
                     resolve({
                         data: roomData,
                     });
@@ -31,44 +31,55 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                 socket.on(ServerToClient.HostLeftRoom, (userId: string) => {
                     updateCachedData((draft) => {
                         toast.warn('Host left, lobby will be closed soon...', {
-                            autoClose: 7000,
-                            hideProgressBar: true,
+                            autoClose: 9000,
                             pauseOnHover: false,
                             progress: undefined,
                             theme: 'dark',
                         });
-                        draft.players.delete(userId);
-                        draft.readyStatus = false;
-                        // const guestEntry = Array.from(draft.players.entries()).find(
-                        //     (entry) => entry[1].userType === 'guest'
-                        // ) as [string, User];
-                        // return {
-                        //     ...draft,
-                        //     players: new Map([guestEntry]),
-                        //     readyStatus: false,
-                        // };
+
+                        return {
+                            ...draft,
+                            readyStatus: false,
+                            players: draft.players.filter((user) => user.id !== userId),
+                        };
                     });
                 });
                 socket.on(ServerToClient.GuestLeftRoom, (userId: string) => {
                     updateCachedData((draft) => {
-                        toast.error(`${draft.players.get(userId)} left!`, {
-                            autoClose: 2000,
-                            hideProgressBar: true,
-                        });
-                        draft.players.delete(userId);
-                        draft.readyStatus = false;
+                        toast.error(
+                            `${
+                                draft.players.find((user) => user.id === userId)?.name
+                            } left!`,
+                            {
+                                autoClose: 2000,
+                                hideProgressBar: true,
+                            }
+                        );
+
+                        return {
+                            ...draft,
+                            readyStatus: false,
+                            players: draft.players.filter((user) => user.id !== userId),
+                        };
                     });
                 });
                 socket.on(
                     ServerToClient.HostJoinedRoom,
                     (userId: string, name: string) => {
                         updateCachedData((draft) => {
-                            toast.dismiss;
+                            toast.dismiss();
                             toast.success(`⭐${name} rejoined!⭐`, {
                                 autoClose: 2000,
                                 hideProgressBar: true,
                             });
-                            draft.players.set(userId, { name, userType: 'host' });
+
+                            return {
+                                ...draft,
+                                players: [
+                                    ...draft.players,
+                                    { id: userId, name, userType: 'host' },
+                                ],
+                            };
                         });
                     }
                 );
@@ -80,7 +91,14 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                                 autoClose: 2000,
                                 hideProgressBar: true,
                             });
-                            draft.players.set(userId, { name, userType: 'guest' });
+
+                            return {
+                                ...draft,
+                                players: [
+                                    ...draft.players,
+                                    { id: userId, name, userType: 'guest' },
+                                ],
+                            };
                         });
                     }
                 );
@@ -107,6 +125,11 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                 socket.on(TTTServerToClient.GameWon, (gameWon: GameWon<TicTacToe>) => {
                     updateCachedData((draft) => {
                         return { ...draft, score: gameWon.newScore };
+                    });
+                });
+                socket.on(ServerToClient.RoomDeleted, () => {
+                    updateCachedData((draft) => {
+                        return { ...draft, deleted: true };
                     });
                 });
                 await cacheEntryRemoved;

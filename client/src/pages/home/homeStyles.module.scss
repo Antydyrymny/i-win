@@ -1,0 +1,132 @@
+@use '../../styles/index.scss' as *;
+
+.wrapper {
+    min-height: calc(100vh - 4rem);
+    background-image: url('../../assets/bg.jpg');
+    background-repeat: no-repeat;
+    @include flexbox(column, space-between);
+    overflow: clip;
+}
+
+.main {
+    margin-top: 10%;
+}
+
+.textBlock {
+    @include flexbox(column, start, start);
+    h1 {
+        font-weight: 600;
+        padding-bottom: 2rem;
+    }
+
+    p {
+        max-width: 30rem;
+        padding-bottom: 5rem;
+    }
+}
+
+.buttons {
+    @include flexbox;
+    gap: 1rem;
+}
+
+.btn {
+    @include flexbox;
+    min-width: 12rem;
+    position: relative;
+    border-radius: 2.5rem;
+    background: linear-gradient(94.97deg, #4e00a9 1.93%, #f1008e 96.93%);
+    padding: 1rem 1.5rem;
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 600;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 0;
+    outline: none;
+}
+
+.btn:hover {
+    box-shadow: 0 0 30px #7442c8;
+}
+
+.btnBlack::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border-radius: 50px;
+    background: #11132a;
+    z-index: -1;
+}
+
+.img {
+    position: absolute;
+    width: 550px;
+    left: 50%;
+    top: -10rem;
+}
+
+.decoration {
+    position: relative;
+    display: block;
+}
+
+.decoration::before {
+    content: '';
+    z-index: 0;
+    position: absolute;
+    top: -35rem;
+    left: 40rem;
+    width: 1000px;
+    height: 1000px;
+    background: url('../../assets/bgHomeDecoration.png') top/cover no-repeat;
+}
+
+.footerWrapper {
+    position: relative;
+    height: 5rem;
+    @include flexbox;
+}
+
+.footerOverlay {
+    box-shadow: rgba(0, 0, 0, 0.3) 0px -3px 10px 0px;
+    width: 200vw;
+    height: 100%;
+    position: absolute;
+    background: $bg-color-nav;
+}
+
+.footer {
+    position: relative;
+    z-index: 1000;
+    height: 100%;
+    width: 100%;
+    @include flexbox(row, end);
+}
+
+.footerBtn {
+    white-space: pre;
+}
+
+@media (max-width: 1200px) {
+    .decoration {
+        display: none;
+    }
+
+    .textBlock {
+        display: block;
+        h1 {
+            text-align: center;
+        }
+        p {
+            max-width: none;
+        }
+    }
+}

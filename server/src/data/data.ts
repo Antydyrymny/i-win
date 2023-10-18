@@ -33,4 +33,4 @@ export const manageGameSubscriptions: Record<GameType, Subscription> = {
     },
 };
 
-export const roomDoNotExistErr = '_room_do_not_exist';
+export const accessDeniedErr = '_access_denied';

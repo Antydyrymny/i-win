@@ -3,7 +3,6 @@ import { setTypedStorageItem } from '../../utils/typesLocalStorage';
 import { userNameKey } from '../../data/localStorageKeys';
 import { getTypedStorageItem } from '../../utils/typesLocalStorage';
 import { Form, InputGroup, Button } from 'react-bootstrap';
-// import styles from './nameInputStyles.module.scss';
 
 function NameInput({
     disabled,
@@ -28,7 +27,7 @@ function NameInput({
     };
 
     return (
-        <Form onSubmit={handleSubmit}>
+        <Form data-bs-theme='dark' onSubmit={handleSubmit}>
             <InputGroup>
                 <Form.Control
                     placeholder='Your name'

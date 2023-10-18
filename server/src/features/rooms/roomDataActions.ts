@@ -18,7 +18,32 @@ export const getAllRooms = (): RoomPreview[] =>
         playerCount: room.players.size,
         gameType: room.gameType,
         gameState: room.gameState,
+        waitingForHost: room.waitingForHost,
     }));
+
+export const getClientRoomData = (roomId: string): ClientRoom => {
+    const room = rooms.get(roomId);
+
+    return {
+        ...room,
+        players: Array.from(room.players.entries()).map((entry) => ({
+            id: entry[0],
+            ...entry[1],
+        })),
+    };
+};
+
+export const validateRoom = (roomId: string) =>
+    rooms.has(roomId) && rooms.get(roomId).players.size < 2;
+
+export const allowRejoin = (roomId: string, userType: UserType) => {
+    if (!validateRoom(roomId)) return false;
+    const hasHost = !!Array.from(rooms.get(roomId).players.values()).find(
+        (user) => user.userType === 'host'
+    );
+
+    return userType === 'guest' ? hasHost : !hasHost;
+};
 
 export const getRoomPreview = (roomId: string): RoomPreview => {
     const room = rooms.get(roomId);
@@ -29,21 +54,9 @@ export const getRoomPreview = (roomId: string): RoomPreview => {
         playerCount: room.players.size,
         gameType: room.gameType,
         gameState: room.gameState,
+        waitingForHost: room.waitingForHost,
     };
 };
-
-export const getClientRoomData = (roomId: string): ClientRoom => {
-    const room = rooms.get(roomId);
-    return {
-        ...room,
-        players: Array.from(room.players.entries()).map((entry) => ({
-            id: entry[0],
-            ...entry[1],
-        })),
-    };
-};
-
-export const validateRoom = (roomId: string) => rooms.has(roomId);
 
 export const validateGuestName = ({ roomId, userName }): string => {
     const room = rooms.get(roomId);
@@ -69,6 +82,7 @@ export const createNewRoom = (userName: string) => {
         gameState: 'in lobby',
         gameId: null,
         score: [0, 0],
+        waitingForHost: true,
     });
 
     return roomId;
@@ -88,11 +102,17 @@ export const populateRoom = ({
     const room = rooms.get(roomId);
     if (!room) createNewRoom(userName);
     room.players.set(userId, { name: userName, userType });
+    if (userType === 'host') room.waitingForHost = false;
     playersInGame[0]++;
-    return getUpdatedRoomPreview(roomId, 'playerCount');
+    return userType === 'host'
+        ? getUpdatedRoomPreview(roomId, 'playerCount', 'waitingForHost')
+        : getUpdatedRoomPreview(roomId, 'playerCount');
 };
 
-type PropToUpdate = keyof Pick<Room, 'gameType' | 'gameState' | 'readyStatus' | 'score'>;
+type PropToUpdate = keyof Pick<
+    Room,
+    'gameType' | 'gameState' | 'readyStatus' | 'score' | 'waitingForHost'
+>;
 type UpdatedPropToBroadcast = Exclude<keyof UpdatedRoomPreview, 'id'>;
 export const changeRoomProp = <T extends PropToUpdate>(
     roomId: string,
@@ -102,25 +122,29 @@ export const changeRoomProp = <T extends PropToUpdate>(
     const room = rooms.get(roomId);
     room[propToChange] = value;
     const updatedPreview =
-        propToChange === 'gameType' || propToChange === 'gameState'
+        propToChange === 'gameType' ||
+        propToChange === 'gameState' ||
+        propToChange === 'waitingForHost'
             ? getUpdatedRoomPreview(roomId, propToChange)
             : null;
 
     return updatedPreview as T extends UpdatedPropToBroadcast ? UpdatedRoomPreview : null;
 };
 
-export const clearUserFromRoom = (userId: string, roomId: string) => {
+export const clearUserFromRoom = (userId: string, roomId: string, userType: UserType) => {
     const room = rooms.get(roomId);
     if (!room) return;
     room.players.delete(userId);
     playersInGame[0]--;
-
-    return getUpdatedRoomPreview(roomId, 'playerCount');
+    if (userType === 'host') {
+        room.waitingForHost = true;
+        return getUpdatedRoomPreview(roomId, 'playerCount', 'waitingForHost');
+    } else return getUpdatedRoomPreview(roomId, 'playerCount');
 };
 
-export const deleteRoomWithNoHost = (roomId: string) => {
+export const deleteRoomWithNoHost = (roomId: string): boolean => {
     const room = rooms.get(roomId);
-    if (!room) return false;
+    if (!room) return true;
     if (
         !room.players.size ||
         !Array.from(room.players.values())
@@ -128,6 +152,8 @@ export const deleteRoomWithNoHost = (roomId: string) => {
             .includes('host')
     ) {
         games[room.gameType]?.delete(room.gameId);
+        const usersNumber = room.players.size;
+        playersInGame[0] -= usersNumber;
         rooms.delete(roomId);
         return true;
     }
@@ -162,11 +188,12 @@ const gameInitializer = {
 
 const getUpdatedRoomPreview = (
     roomId: string,
-    updatedParam: UpdatedPropToBroadcast
+    ...updatedParams: UpdatedPropToBroadcast[]
 ): UpdatedRoomPreview =>
-    updatedParam === 'playerCount'
-        ? { id: roomId, playerCount: rooms.get(roomId).players.size }
-        : {
-              id: roomId,
-              [updatedParam]: rooms.get(roomId)[updatedParam],
-          };
+    updatedParams.reduce(
+        (acc: UpdatedRoomPreview, param) =>
+            param === 'playerCount'
+                ? { ...acc, playerCount: rooms.get(roomId).players.size }
+                : { ...acc, [param]: rooms.get(roomId)[param] },
+        { id: roomId }
+    );

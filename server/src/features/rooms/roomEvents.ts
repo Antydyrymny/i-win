@@ -5,16 +5,13 @@ import {
     DefaultRooms,
     UserType,
 } from '../../types/types';
-import {
-    playersInGame,
-    manageGameSubscriptions,
-    roomDoNotExistErr,
-} from '../../data/data';
-import { createUsersRoomGetter } from '../utils';
+import { playersInGame, manageGameSubscriptions, accessDeniedErr } from '../../data/data';
+import { createUsersRoomGetter, clearRejoinRooms } from '../utils';
 import {
     createNewRoom,
     getRoomPreview,
     validateRoom,
+    allowRejoin,
     getAllRooms,
     populateRoom,
     validateGuestName,
@@ -31,8 +28,19 @@ export default function subscribeToFeatures() {
         const getUsersRoom = createUsersRoomGetter(socket);
 
         socket.on(ClientToServer.RequestingOnlineStatus, (acknowledgeOnlineStatus) => {
-            socket.join(DefaultRooms.lobby);
             acknowledgeOnlineStatus(playersInGame[0]);
+            socket.join(DefaultRooms.lobby);
+        });
+
+        socket.on(ClientToServer.AllowRejoin, (rejoinRequest, acknowledgeRejoin) => {
+            acknowledgeRejoin(allowRejoin(rejoinRequest.roomId, rejoinRequest.userType));
+            clearRejoinRooms(socket);
+            socket.join(DefaultRooms.rejoining + rejoinRequest.roomId);
+            socket.join(
+                (rejoinRequest.userType === 'host'
+                    ? DefaultRooms.hostRejoining
+                    : DefaultRooms.guestRejoining) + rejoinRequest.roomId
+            );
         });
 
         socket.on(ClientToServer.CreatingRoom, (userName, acknowledgeCreating) => {
@@ -51,15 +59,11 @@ export default function subscribeToFeatures() {
             acknowledgeAllRooms(getAllRooms());
         });
 
-        socket.on(ClientToServer.VerifyUsersNumber, (roomId, acknowledgeUsersNumber) => {
-            acknowledgeUsersNumber(getRoomPreview(roomId).playerCount);
-        });
-
         socket.on(
             ClientToServer.HostJoiningRoom,
             ({ roomId, userName }, acknowledgeName) => {
                 if (!validateRoom(roomId)) {
-                    acknowledgeName(roomDoNotExistErr);
+                    acknowledgeName(accessDeniedErr);
                     return;
                 }
                 socket.join(roomId);
@@ -80,6 +84,7 @@ export default function subscribeToFeatures() {
                     ServerToClient.RoomPreviewUpdated,
                     updatedRoomPreview
                 );
+                handleRejoin(roomId);
             }
         );
 
@@ -87,7 +92,7 @@ export default function subscribeToFeatures() {
             ClientToServer.GuestJoiningRoom,
             ({ roomId, userName }, acknowledgeName) => {
                 if (!validateRoom(roomId)) {
-                    acknowledgeName(roomDoNotExistErr);
+                    acknowledgeName(accessDeniedErr);
                     return;
                 }
                 socket.join(roomId);
@@ -109,11 +114,14 @@ export default function subscribeToFeatures() {
                     ServerToClient.RoomPreviewUpdated,
                     updatedRoomPreview
                 );
+                handleRejoin(roomId);
             }
         );
 
         socket.on(ClientToServer.RequestingRoomData, (acknowledgeRoomData) => {
             const roomId = getUsersRoom();
+            socket.leave(DefaultRooms.lobby);
+            socket.leave(DefaultRooms.lookingForRoom);
             acknowledgeRoomData(getClientRoomData(roomId));
         });
 
@@ -173,16 +181,29 @@ export default function subscribeToFeatures() {
         });
 
         socket.on(ClientToServer.Disconnecting, () => {
-            socket.leave(DefaultRooms.lookingForRoom);
             socket.leave(DefaultRooms.lobby);
+            socket.leave(DefaultRooms.lookingForRoom);
             const roomId = getUsersRoom();
             const userType = getUserType(socket.id, roomId);
             if (userType) onLeave(userType, roomId);
         });
 
+        const handleRejoin = (roomId: string) => {
+            io.in(DefaultRooms.guestRejoining + roomId).emit(
+                ServerToClient.RejoinStatusUpdated,
+                allowRejoin(roomId, 'guest')
+            );
+            io.in(DefaultRooms.hostRejoining + roomId).emit(
+                ServerToClient.RejoinStatusUpdated,
+                allowRejoin(roomId, 'host')
+            );
+        };
+
         const onLeave = (userType: UserType, roomId: string) => {
             if (!roomId) return;
-            const updatedRoomPreview = clearUserFromRoom(socket.id, roomId);
+
+            const updatedRoomPreview = clearUserFromRoom(socket.id, roomId, userType);
+            handleRejoin(roomId);
             socket.leave(roomId);
             if (updatedRoomPreview) {
                 changeRoomProp(roomId, 'readyStatus', false);
@@ -206,6 +227,10 @@ export default function subscribeToFeatures() {
                             roomId
                         );
                         io.in(roomId).emit(ServerToClient.RoomDeleted, roomId);
+                        io.in(DefaultRooms.rejoining + roomId).emit(
+                            ServerToClient.RejoinStatusUpdated,
+                            false
+                        );
                     }
                 }, 10000);
             }

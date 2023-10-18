@@ -30,16 +30,10 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                 await cacheDataLoaded;
                 socket.on(ServerToClient.HostLeftRoom, (userId: string) => {
                     updateCachedData((draft) => {
-                        toast.warn('Host left, lobby will be closed soon...', {
-                            autoClose: 9000,
-                            pauseOnHover: false,
-                            progress: undefined,
-                            theme: 'dark',
-                        });
-
                         return {
                             ...draft,
                             readyStatus: false,
+                            waitingForHost: true,
                             players: draft.players.filter((user) => user.id !== userId),
                         };
                     });
@@ -67,7 +61,6 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                     ServerToClient.HostJoinedRoom,
                     (userId: string, name: string) => {
                         updateCachedData((draft) => {
-                            toast.dismiss();
                             toast.success(`⭐${name} rejoined!⭐`, {
                                 autoClose: 2000,
                                 hideProgressBar: true,
@@ -75,6 +68,7 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
 
                             return {
                                 ...draft,
+                                waitingForHost: false,
                                 players: [
                                     ...draft.players,
                                     { id: userId, name, userType: 'host' },
@@ -141,6 +135,7 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                 socket.off(ServerToClient.GuestIsReady);
                 socket.off(ServerToClient.GuestIsNotReady);
                 socket.off(ServerToClient.GameStarts);
+                socket.off(ServerToClient.RoomDeleted);
                 socket.off(TTTServerToClient.GameWon);
             } catch {
                 // if cacheEntryRemoved resolved before cacheDataLoaded,

@@ -1,0 +1,44 @@
+@use '../../styles/index.scss' as *;
+
+.wrapper {
+    min-height: calc(100vh - 4rem);
+    background-image: url('../../assets/bg.jpg');
+    background-repeat: no-repeat;
+    overflow: clip;
+}
+
+.main {
+    padding-top: 5%;
+}
+
+.heading {
+    text-align: center;
+    color: $text-color-mainYellow;
+    font-weight: 600;
+    padding-bottom: 1.5rem;
+}
+
+.title {
+    font-weight: 600;
+}
+
+.table {
+    background-color: $bg-color-nav;
+    th {
+        color: $text-color-mainYellow;
+    }
+    td {
+        vertical-align: middle;
+        color: $text-color-subHighlight;
+    }
+}
+
+.modalWrapper {
+    border: none;
+    border-radius: 1rem;
+}
+
+.modal {
+    background-color: $bg-color-nav;
+    border: none;
+}

@@ -4,9 +4,9 @@ import { DefaultEventsMap } from 'socket.io/dist/typed-events';
 export enum ClientToServer {
     Connection = 'connection',
     RequestingOnlineStatus = 'requestingOnlineStatus',
+    AllowRejoin = 'allowRejoin',
     CreatingRoom = 'creatingRoom',
     RequestingAllRooms = 'requestingAllRooms',
-    VerifyUsersNumber = 'verifyUsersNumber',
     HostJoiningRoom = 'hostJoining',
     GuestJoiningRoom = 'guestJoining',
     RequestingRoomData = 'requestingRoomData',
@@ -23,6 +23,7 @@ export enum ServerToClient {
     RoomCreated = 'roomCreated',
     OnlineIncreased = 'onlineIncreased',
     OnlineDecreased = 'onlineDecreased',
+    RejoinStatusUpdated = 'rejoinStatusUpdated',
     RoomPreviewUpdated = 'roomPreviewUpdated',
     HostJoinedRoom = 'hostJoined',
     GuestJoinedRoom = 'guestJoined',
@@ -53,16 +54,16 @@ export type ClientToServerEvents = {
     [ClientToServer.RequestingOnlineStatus]: (
         acknowledgeOnlineStatus: (playingNow: number) => void
     ) => void;
+    [ClientToServer.AllowRejoin]: (
+        rejoinRequest: RejoinRequest,
+        acknowledgeRejoin: (allow: boolean) => void
+    ) => void;
     [ClientToServer.CreatingRoom]: (
         userName: string,
         acknowledgeCreating: (roomId: string) => void
     ) => void;
     [ClientToServer.RequestingAllRooms]: (
         acknowledgeAllRooms: (rooms: RoomPreview[]) => void
-    ) => void;
-    [ClientToServer.VerifyUsersNumber]: (
-        roomId: string,
-        acknowledgeUsersNumber: (usersNumber: number) => void
     ) => void;
     [ClientToServer.HostJoiningRoom]: (
         joinRoomRequest: JoinRoomRequest,
@@ -90,6 +91,7 @@ export type ClientToServerEvents = {
 export type ServerToClientEvents = {
     [ServerToClient.OnlineIncreased]: () => void;
     [ServerToClient.OnlineDecreased]: () => void;
+    [ServerToClient.RejoinStatusUpdated]: (allow: boolean) => void;
     [ServerToClient.RoomCreated]: (roomPreview: RoomPreview) => void;
     [ServerToClient.RoomDeleted]: (roomId: string) => void;
     [ServerToClient.RoomPreviewUpdated]: (updatedRoom: UpdatedRoomPreview) => void;
@@ -108,9 +110,14 @@ export type ServerToClientEvents = {
 export enum DefaultRooms {
     lobby = 'lobby',
     lookingForRoom = 'lookingForRoom',
+    rejoining = 'rejoining',
+    hostRejoining = 'rejoiningHost',
+    guestRejoining = 'rejoiningGuest',
 }
 
 export type UserType = 'host' | 'guest';
+
+export type RejoinRequest = { roomId: string; userType: UserType };
 
 export type User = {
     userType: UserType;
@@ -127,6 +134,7 @@ export type RoomPreview = {
     playerCount: number;
     gameType: GameType;
     gameState: GameState;
+    waitingForHost: boolean;
 };
 
 export type UpdatedRoomPreview = {
@@ -134,6 +142,7 @@ export type UpdatedRoomPreview = {
     playerCount?: number;
     gameType?: GameType;
     gameState?: GameState;
+    waitingForHost?: boolean;
 };
 
 export type JoinRoomRequest = {
@@ -149,6 +158,8 @@ export type Room = {
     gameState: GameState;
     gameId: string | null;
     score: [number, number];
+    waitingForHost: boolean;
+    deleted?: true;
 };
 
 export type ClientRoom = {
@@ -159,6 +170,7 @@ export type ClientRoom = {
     gameState: GameState;
     gameId: string | null;
     score: [number, number];
+    waitingForHost: boolean;
     deleted?: true;
 };
 

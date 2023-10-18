@@ -8,11 +8,20 @@ type SidebarProps = {
     game: Exclude<GameType, 'choosing'>;
     chooseGame: (game: Exclude<GameType, 'choosing'>) => void;
     allowChange: boolean;
+    disabled: boolean;
 };
 
-function Sidebar({ show, handleClose, game, chooseGame, allowChange }: SidebarProps) {
+function Sidebar({
+    show,
+    handleClose,
+    game,
+    chooseGame,
+    allowChange,
+    disabled,
+}: SidebarProps) {
     const handleChangeClick = () => {
         chooseGame(game);
+        handleClose();
     };
 
     return (
@@ -66,7 +75,12 @@ function Sidebar({ show, handleClose, game, chooseGame, allowChange }: SidebarPr
                     )}
                 </ul>
                 {allowChange && (
-                    <Button onClick={handleChangeClick} className={styles.btn}>
+                    <Button
+                        onClick={handleChangeClick}
+                        className={`${styles.btn} ${styles.btnBottom}`}
+                        variant='warning'
+                        disabled={disabled}
+                    >
                         Choose
                     </Button>
                 )}

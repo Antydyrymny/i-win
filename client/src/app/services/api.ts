@@ -11,6 +11,7 @@ import {
     subscribeToOnlineStatus,
     subscribeToAllRooms,
     subscribeToRoomEvents,
+    subsctibeToRejoin,
     subscribeToTicTacToe,
 } from './subscriptions';
 
@@ -26,12 +27,13 @@ const apiSlice = createApi({
     baseQuery: fetchBaseQuery({
         baseUrl,
     }),
-    tagTypes: ['OnlineNumber', 'AllRooms', 'MyRoom', 'GameState'],
+    tagTypes: ['OnlineNumber', 'AllRooms', 'MyRoom', 'GameState', 'RejoinStatus'],
     endpoints: (builder) => ({
         subscribeToOnlineStatus: subscribeToOnlineStatus(builder, socket),
         subscribeToAllRooms: subscribeToAllRooms(builder, socket),
         subscribeToRoomEvents: subscribeToRoomEvents(builder, socket),
         subscribeToTicTacToe: subscribeToTicTacToe(builder, socket),
+        subsctibeToRejoin: subsctibeToRejoin(builder, socket),
 
         createRoom: builder.mutation<string, string>({
             queryFn: (userName) => {
@@ -45,20 +47,7 @@ const apiSlice = createApi({
                     );
                 });
             },
-            invalidatesTags: ['AllRooms', 'MyRoom'],
-        }),
-        verifyUsersNumber: builder.query<number, string>({
-            queryFn: (roomId) => {
-                return new Promise((resolve) => {
-                    socket.emit(
-                        ClientToServer.VerifyUsersNumber,
-                        roomId,
-                        (usersNumber: number) => {
-                            resolve({ data: usersNumber });
-                        }
-                    );
-                });
-            },
+            invalidatesTags: ['AllRooms', 'MyRoom', 'RejoinStatus'],
         }),
         hostJoinRoom: builder.mutation<string, JoinRoomRequest>({
             queryFn: (joinRoomRequest) => {
@@ -72,7 +61,7 @@ const apiSlice = createApi({
                     );
                 });
             },
-            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom'],
+            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom', 'RejoinStatus'],
         }),
         guestJoinRoom: builder.mutation<string, JoinRoomRequest>({
             queryFn: (joinRoomRequest) => {
@@ -86,21 +75,21 @@ const apiSlice = createApi({
                     );
                 });
             },
-            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom'],
+            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom', 'RejoinStatus'],
         }),
         hostLeave: builder.mutation<void, void>({
             queryFn: () => {
                 socket.emit(ClientToServer.HostLeavingRoom);
                 return { data: undefined };
             },
-            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom'],
+            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom', 'RejoinStatus'],
         }),
         guestLeave: builder.mutation<void, void>({
             queryFn: () => {
                 socket.emit(ClientToServer.GuestLeavingRoom);
                 return { data: undefined };
             },
-            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom'],
+            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom', 'RejoinStatus'],
         }),
         changeGame: builder.mutation<void, GameType>({
             queryFn: (gameType) => {
@@ -146,10 +135,10 @@ export const {
     useSubscribeToOnlineStatusQuery,
     useCreateRoomMutation,
     useSubscribeToAllRoomsQuery,
+    useSubsctibeToRejoinQuery,
     useHostJoinRoomMutation,
     useGuestJoinRoomMutation,
     useSubscribeToRoomEventsQuery,
-    useVerifyUsersNumberQuery,
     useHostLeaveMutation,
     useGuestLeaveMutation,
     useChangeGameMutation,

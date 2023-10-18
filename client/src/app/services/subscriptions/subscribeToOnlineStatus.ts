@@ -27,7 +27,7 @@ export function subscribeToOnlineStatus(builder: ApiBuilder, socket: ApiSocket) 
                     updateCachedData((draft) => draft + 1);
                 });
                 socket.on(ServerToClient.OnlineDecreased, () => {
-                    updateCachedData((draft) => draft - 1);
+                    updateCachedData((draft) => Math.max(draft - 1, 0));
                 });
                 await cacheEntryRemoved;
                 socket.off(ServerToClient.OnlineIncreased);

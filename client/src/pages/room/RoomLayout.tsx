@@ -1,17 +1,19 @@
 import { useEffect } from 'react';
 import { Outlet, useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
-    useVerifyUsersNumberQuery,
     useHostJoinRoomMutation,
     useGuestJoinRoomMutation,
     useSubscribeToRoomEventsQuery,
+    useHostLeaveMutation,
+    useGuestLeaveMutation,
 } from '../../app/services/api';
 import useRedirect from '../../hooks/useRedirect';
 import { getTypedStorageItem, setTypedStorageItem } from '../../utils/typesLocalStorage';
-import { roomDoNotExistErr } from '../../data/roomDoNotExistErr';
-import { userNameKey, userTypeKey } from '../../data/localStorageKeys';
+import { accessDeniedErr } from '../../data/accessDeniedErr';
+import { userNameKey, userTypeKey, lastRoomKey } from '../../data/localStorageKeys';
 import { Container, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import useClearToasts from '../../hooks/useClearToasts';
 import { UserType } from '../../types/types';
 
 function RoomLayout() {
@@ -26,16 +28,19 @@ function RoomLayout() {
     const { data: roomData, isSuccess: subscribed } = useSubscribeToRoomEventsQuery(
         undefined,
         {
-            skip: !hostJoined && !guestJoined,
+            skip:
+                (!hostJoined && !guestJoined) ||
+                validatedHostName === accessDeniedErr ||
+                validatedGuestName === accessDeniedErr,
         }
     );
-    const { data: usersNumber, isSuccess: usersNumberVerified } =
-        useVerifyUsersNumberQuery(roomId!, { skip: !roomId || subscribed });
+
+    const [guestLeave] = useGuestLeaveMutation();
+    const [hostLeave] = useHostLeaveMutation();
 
     useRedirect(
         '/',
-        validatedHostName === roomDoNotExistErr ||
-            validatedGuestName === roomDoNotExistErr
+        validatedHostName === accessDeniedErr || validatedGuestName === accessDeniedErr
     );
 
     useRedirect(
@@ -47,16 +52,21 @@ function RoomLayout() {
 
     useRedirect(
         `/room/${roomId}/${roomData?.gameType}`,
-        !!roomData && roomData.gameType !== 'choosing'
+        !!roomData &&
+            roomData.readyStatus &&
+            roomData.gameType !== 'choosing' &&
+            roomData.gameState !== 'in lobby'
     );
 
     useRedirect('/', roomData?.deleted === true);
 
     useEffect(() => {
-        if (!usersNumberVerified) return;
-
         const userName = getTypedStorageItem(userNameKey) ?? '';
-        const userType: UserType = usersNumber === 0 ? 'host' : 'guest';
+        let userType: UserType;
+        const lastRoom = getTypedStorageItem(lastRoomKey);
+        if (lastRoom && lastRoom.roomId === roomId) {
+            userType = lastRoom.userType;
+        } else userType = 'guest';
         setTypedStorageItem(userTypeKey, userType);
 
         const join = async () => {
@@ -67,14 +77,22 @@ function RoomLayout() {
                         ? await guestJoins({ roomId, userName }).unwrap()
                         : await hostJoins({ roomId, userName }).unwrap();
 
-                if (validatedName === roomDoNotExistErr) return;
+                if (validatedName === accessDeniedErr) return;
                 setTypedStorageItem(userNameKey, validatedName);
+                setTypedStorageItem(lastRoomKey, { roomId, userType });
             } catch {
                 toast.error('Error joining room');
             }
         };
         join();
-    }, [guestJoins, hostJoins, navigate, roomId, usersNumber, usersNumberVerified]);
+
+        return () => {
+            if (userType === 'guest') guestLeave();
+            else hostLeave();
+        };
+    }, [guestJoins, guestLeave, hostJoins, hostLeave, navigate, roomId]);
+
+    useClearToasts();
 
     return subscribed && roomData ? (
         <Outlet context={roomData} />

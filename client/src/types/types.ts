@@ -17,22 +17,24 @@ export type ApiBuilder = EndpointBuilder<
         object,
         FetchBaseQueryMeta
     >,
-    'AllRooms' | 'MyRoom' | 'GameState' | 'OnlineNumber',
+    'AllRooms' | 'MyRoom' | 'GameState' | 'OnlineNumber' | 'RejoinStatus',
     'api'
 >;
 
 export type LocalStorageSchema = {
     [userNameKey]: string;
     [userTypeKey]: UserType;
-    [lastRoomKey]: string;
+    [lastRoomKey]: RejoinRequest;
 };
+
+export type RejoinRequest = { roomId: string; userType: UserType };
 
 export enum ClientToServer {
     Connection = 'connection',
     RequestingOnlineStatus = 'requestingOnlineStatus',
+    AllowRejoin = 'allowRejoin',
     CreatingRoom = 'creatingRoom',
     RequestingAllRooms = 'requestingAllRooms',
-    VerifyUsersNumber = 'verifyUsersNumber',
     HostJoiningRoom = 'hostJoining',
     GuestJoiningRoom = 'guestJoining',
     RequestingRoomData = 'requestingRoomData',
@@ -49,10 +51,11 @@ export enum ServerToClient {
     RoomCreated = 'roomCreated',
     OnlineIncreased = 'onlineIncreased',
     OnlineDecreased = 'onlineDecreased',
+    RejoinStatusUpdated = 'rejoinStatusUpdated',
     RoomPreviewUpdated = 'roomPreviewUpdated',
     HostJoinedRoom = 'hostJoined',
     GuestJoinedRoom = 'guestJoined',
-    RoomGameChanged = 'roomgGameChanged',
+    RoomGameChanged = 'roomGameChanged',
     GuestIsReady = 'guestIsReady',
     GuestIsNotReady = 'guestIsNotReady',
     GameStarts = 'gameStarts',
@@ -92,6 +95,7 @@ export type RoomPreview = {
     playerCount: number;
     gameType: GameType;
     gameState: GameState;
+    waitingForHost: boolean;
 };
 
 export type UpdatedRoomPreview = {
@@ -99,6 +103,7 @@ export type UpdatedRoomPreview = {
     playerCount?: number;
     gameType?: GameType;
     gameState?: GameState;
+    waitingForHost?: boolean;
 };
 
 export type JoinRoomRequest = {
@@ -114,6 +119,7 @@ export type Room = {
     gameState: GameState;
     gameId: string | null;
     score: [number, number];
+    waitingForHost: boolean;
     deleted?: true;
 };
 
@@ -125,6 +131,7 @@ export type ClientRoom = {
     gameState: GameState;
     gameId: string | null;
     score: [number, number];
+    waitingForHost: boolean;
     deleted?: true;
 };
 

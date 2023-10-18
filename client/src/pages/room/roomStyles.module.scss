@@ -5,13 +5,14 @@
     @include flexbox(column);
     background-image: url('../../assets/bg.jpg');
     background-repeat: no-repeat;
+    gap: 1.25rem;
 }
 
 .main,
 .carouselWrapper {
-    flex-grow: 1;
     width: 100%;
     height: 100%;
+    flex-grow: 1;
 }
 
 .main {
@@ -30,20 +31,24 @@
 }
 
 .player {
+    padding-right: 2rem;
     color: $text-color-mainOrange;
     background: linear-gradient(180deg, #4609c3 -10%, #2c0e58 80%);
     clip-path: polygon(0 0, 100% 0, calc(100% - 3rem) 100%, 0% 100%);
+    text-shadow: 2px 2px 4px rgba(250, 64, 16, 0.7);
 }
 
 .opponent {
+    padding-left: 2rem;
     color: $text-color-mainPurple;
     background: linear-gradient(340deg, #ea842a, #fa4010);
     margin-left: -2rem;
     clip-path: polygon(3rem 0, 100% 0, 100% 100%, 0% 100%);
+    text-shadow: 2px 2px 4px rgba(44, 14, 88, 0.7);
 }
 
 .img {
-    width: 22rem;
+    width: 20rem;
     height: auto;
     border-radius: 1rem;
     cursor: pointer;
@@ -67,6 +72,18 @@
     color: $text-color-highlight;
 }
 
+.btn {
+    width: 10rem;
+}
+
+.btnBottom {
+    position: absolute;
+    width: 7rem;
+    bottom: 3rem;
+    left: 50%;
+    transform: translate(-50%);
+}
+
 .list {
     list-style-type: decimal;
     li {
@@ -74,8 +91,104 @@
     }
 }
 
+.vsBlock {
+    position: absolute;
+    z-index: 1000;
+    left: 50%;
+    transform: translate(-50%);
+    @include flexbox;
+}
+
+.vs {
+    height: 12rem;
+    width: auto;
+}
+
+.readyButtons {
+    @include flexbox;
+    position: relative;
+    top: 2.2rem;
+    gap: 15%;
+    width: 100vw;
+}
+
+.btnCenter {
+    @include flexbox;
+    min-width: 12rem;
+    position: relative;
+    border-radius: 2.5rem;
+    background: linear-gradient(94.97deg, #4e00a9 1.93%, #f1008e 96.93%);
+    padding: 1rem 1.5rem;
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 600;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 0;
+    outline: none;
+    color: rgb(255, 255, 255);
+    text-shadow: rgba(12, 19, 55, 0.004) 0px -3px 2px, rgb(27, 122, 226) 0px -1px 4px,
+        rgb(27, 122, 226) 0px -2px 10px, rgb(27, 122, 226) 0px -10px 20px,
+        rgb(27, 122, 226) 0px -18px 40px;
+}
+
+.btnCenter:hover {
+    box-shadow: 0 0 30px #7442c8;
+}
+
+.btnCenter::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border-radius: 50px;
+    background: #11132a;
+    z-index: -1;
+}
+
+.gameTitle {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-weight: 600;
+    color: rgb(255, 255, 255);
+    text-shadow: rgba(12, 19, 55, 0.004) 0px -3px 2px, rgb(27, 122, 226) 0px -1px 4px,
+        rgb(27, 122, 226) 0px -2px 10px, rgb(27, 122, 226) 0px -10px 20px,
+        rgb(27, 122, 226) 0px -18px 40px;
+}
+
+.startBtn {
+    @include flexbox(column);
+}
+
+.tooltip {
+    position: absolute;
+    top: 3.3rem;
+    font-size: 0.875rem;
+    color: $text-color-mainYellow;
+}
+
 @media (max-width: 1200px) {
     .description {
         display: none;
+    }
+
+    .player {
+        padding-left: 2rem;
+        padding-right: 0;
+        justify-content: start;
+        gap: 2rem;
+        text-align: left;
+    }
+    .opponent {
+        padding-right: 2rem;
+        padding-left: 0rem;
+        text-align: right;
+        gap: 2rem;
+        justify-content: end;
     }
 }

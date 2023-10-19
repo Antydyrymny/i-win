@@ -5,6 +5,7 @@ import type {
     TicTacToeCell,
     UpdatedGameState,
     GameWon,
+    Coordinates,
 } from '../../types/types';
 import { swapTurns } from '../utils';
 
@@ -33,6 +34,7 @@ export const processMove = (
                 winner: 'draw',
                 newScore: room.score,
             };
+            game.winner = 'draw';
         } else {
             const winner = swapTurns(game.playerToMove);
             const [hostsPoints, guestsPoints] = room.score;
@@ -45,53 +47,57 @@ export const processMove = (
                 newScore: room.score,
                 winningMove,
             };
+            game.winner = winner;
+            game.winningMove = winningMove;
         }
+        game.playerToMove = null;
     }
 
     return { newGameState, gameWon };
 };
 
-const directions = [
-    [-1, 0],
-    [-1, 1],
+const directions: Coordinates[] = [
     [0, 1],
     [1, 1],
     [1, 0],
     [1, -1],
-    [0, -1],
-    [-1, -1],
 ];
 
 const validateBoard = (
     board: TicTacToeCell[][],
     move: TTTMove,
     lengthToWin: number
-): TTTMove | 'draw' | false => {
+): Coordinates[] | 'draw' | false => {
+    if (!board.flat().includes('')) return 'draw';
     const yLen = board.length;
     const xLen = board[0].length;
-    const queue: [number, number, number][] = [[...move.coordinates, 1]];
-    const visited = new Set<string>();
-    visited.add(`${move.coordinates[0]},${move.coordinates[1]}`);
+    const winningPath: [number, number][] = [];
 
-    while (queue.length) {
-        const [y, x, curLen] = queue.shift();
-        visited.add(`${y},${x}`);
-        if (curLen === lengthToWin) return { type: move.type, coordinates: [y, x] };
-        directions.forEach((direction) => {
-            const newY = y + direction[0];
-            const newX = x + direction[1];
-            if (
-                !visited.has(`${newY},${newX}`) &&
-                newY >= 0 &&
-                newY < yLen &&
-                newX >= 0 &&
-                newX < xLen &&
-                board[newY][newX] === move.type
-            )
-                queue.push([newY, newX, curLen + 1]);
-        });
+    for (let y = 0; y < yLen; y++) {
+        for (let x = 0; x < xLen; x++) {
+            if (board[y][x] !== move.type) continue;
+            winningPath.push([y, x]);
+            for (const direction of directions) {
+                if (dfs(y, x, direction, 1)) return winningPath;
+            }
+            winningPath.pop();
+        }
     }
 
-    if (!board.flat().includes('')) return 'draw';
+    function dfs(y: number, x: number, direction: Coordinates, curLen: number) {
+        if (y >= yLen || x >= xLen || x < 0 || board[y][x] !== move.type) {
+            return false;
+        }
+        if (curLen === lengthToWin) return true;
+        const newY = y + direction[0];
+        const newX = x + direction[1];
+        winningPath.push([newY, newX]);
+        if (dfs(newY, newX, direction, curLen + 1)) return true;
+        else {
+            winningPath.pop();
+            return false;
+        }
+    }
+
     return false;
 };

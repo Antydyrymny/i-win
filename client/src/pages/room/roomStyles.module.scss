@@ -47,6 +47,19 @@
     text-shadow: 2px 2px 4px rgba(44, 14, 88, 0.7);
 }
 
+.name {
+    position: relative;
+}
+
+.host {
+    position: absolute;
+    left: 50%;
+    transform: translate(-50%, -20%);
+    text-shadow: none;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
 .img {
     width: 20rem;
     height: auto;
@@ -128,7 +141,7 @@
     transition: all 0.3s;
     z-index: 0;
     outline: none;
-    color: rgb(255, 255, 255);
+    color: $text-color-glow;
     text-shadow: rgba(12, 19, 55, 0.004) 0px -3px 2px, rgb(27, 122, 226) 0px -1px 4px,
         rgb(27, 122, 226) 0px -2px 10px, rgb(27, 122, 226) 0px -10px 20px,
         rgb(27, 122, 226) 0px -18px 40px;

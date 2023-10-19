@@ -185,6 +185,7 @@ const gameInitializer: Record<
 > = {
     ticTacToe: (): TicTacToe => ({
         playerToMove: Math.random() > 0.5 ? 'host' : 'guest',
+        // boardState: Array.from(new Array(5), () => Array.from(new Array(5)).fill('')),
         boardState: Array.from(new Array(10), () => Array.from(new Array(10)).fill('')),
         lengthToWin: 4,
     }),

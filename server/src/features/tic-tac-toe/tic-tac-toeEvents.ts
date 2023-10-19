@@ -16,11 +16,13 @@ export function subscribeToTicTacToeEvents(socket: MySocket) {
     socket.on(TTTClientToServer.RequestingGameState, (acknowledgeTTCState) => {
         const roomId = getUsersRoom();
         acknowledgeTTCState(getTTTGameState(roomId));
+        io.to(socket.id).emit(TTTServerToClient.SendingGameState);
     });
 
     socket.on(TTTClientToServer.MakingMove, (move) => {
         const roomId = getUsersRoom();
         const moveResult = processMove(roomId, move);
+
         io.in(roomId).emit(TTTServerToClient.PlayerMoved, moveResult.newGameState);
         if (moveResult.gameWon) {
             io.in(roomId).emit(TTTServerToClient.GameWon, moveResult.gameWon);

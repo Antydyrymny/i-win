@@ -26,6 +26,11 @@ export function subscribeToTicTacToe(builder: ApiBuilder, socket: ApiSocket) {
         ) {
             try {
                 await cacheDataLoaded;
+                socket.on(TTTServerToClient.SendingGameState, (gameState: TicTacToe) => {
+                    updateCachedData((draft) => {
+                        return { ...draft, ...gameState };
+                    });
+                });
                 socket.on(
                     TTTServerToClient.PlayerMoved,
                     (newGameState: UpdatedGameState<TicTacToe>) => {
@@ -34,7 +39,7 @@ export function subscribeToTicTacToe(builder: ApiBuilder, socket: ApiSocket) {
                                 ...draft,
                                 playerToMove: newGameState.playerToMove,
                                 boardState: draft.boardState.map((row, y) =>
-                                    y === newGameState.newMove.coordinates[1]
+                                    y === newGameState.newMove.coordinates[0]
                                         ? row.map((col, x) =>
                                               x === newGameState.newMove.coordinates[1]
                                                   ? newGameState.newMove.type
@@ -59,6 +64,7 @@ export function subscribeToTicTacToe(builder: ApiBuilder, socket: ApiSocket) {
                     });
                 });
                 await cacheEntryRemoved;
+                socket.off(TTTServerToClient.SendingGameState);
                 socket.off(TTTServerToClient.PlayerMoved);
                 socket.off(TTTServerToClient.GameWon);
             } catch {

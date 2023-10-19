@@ -5,8 +5,6 @@ import {
     ServerToClient,
     GameType,
     TTTServerToClient,
-    GameWon,
-    TicTacToe,
     ClientRoom,
 } from '../../../types/types';
 import { toast } from 'react-toastify';
@@ -116,11 +114,12 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                         return { ...draft, gameState: 'playing' };
                     });
                 });
-                socket.on(TTTServerToClient.GameWon, (gameWon: GameWon<TicTacToe>) => {
+                socket.on(TTTServerToClient.SendingGameState, () => {
                     updateCachedData((draft) => {
-                        return { ...draft, score: gameWon.newScore };
+                        return { ...draft, gameState: 'playing' };
                     });
                 });
+
                 socket.on(ServerToClient.RoomDeleted, () => {
                     updateCachedData((draft) => {
                         return { ...draft, deleted: true };
@@ -136,7 +135,7 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                 socket.off(ServerToClient.GuestIsNotReady);
                 socket.off(ServerToClient.GameStarts);
                 socket.off(ServerToClient.RoomDeleted);
-                socket.off(TTTServerToClient.GameWon);
+                socket.off(TTTServerToClient.SendingGameState);
             } catch {
                 // if cacheEntryRemoved resolved before cacheDataLoaded,
                 // cacheDataLoaded throws

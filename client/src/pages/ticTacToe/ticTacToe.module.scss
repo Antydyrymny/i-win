@@ -1,0 +1,86 @@
+@use '../../styles/index.scss' as *;
+
+.wrapper {
+    min-height: calc(100vh - 4rem);
+    background-image: url('../../assets/bg.jpg');
+    background-repeat: no-repeat;
+    gap: 1.25rem;
+}
+
+.vs {
+    width: 100%;
+    position: sticky;
+    top: 4rem;
+}
+
+.title {
+    margin-block: 2.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    line-height: 1;
+    font-weight: 600;
+    color: $text-color-glow;
+    text-shadow: rgba(12, 19, 55, 0.004) 0px -3px 2px, rgb(27, 122, 226) 0px -1px 4px,
+        rgb(27, 122, 226) 0px -2px 10px, rgb(27, 122, 226) 0px -10px 20px,
+        rgb(27, 122, 226) 0px -18px 40px;
+}
+
+.card {
+    background-color: $bg-color-main;
+    border: none;
+}
+
+.grid {
+    display: grid;
+    gap: 0.4rem;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+}
+
+.cell {
+    cursor: pointer;
+    position: relative;
+    border-radius: 0.5rem;
+    background-color: $bg-color-nav;
+    width: 100%;
+    padding-bottom: 100%;
+    div {
+        color: $text-color-mainYellow;
+        font-size: xx-large;
+        position: absolute;
+        @include flexbox;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+.cell:hover {
+    background-color: $text-color-mainPurple;
+}
+.cell:active {
+    background-color: $text-color-ligherPurple;
+}
+
+.shake {
+    animation: shake 0.2s ease-in-out;
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-5px);
+    }
+    50% {
+        transform: translateX(5px);
+    }
+    75% {
+        transform: translateX(-5px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}

@@ -96,6 +96,7 @@ function Room() {
             <Vs
                 playerName={playerName}
                 opponentName={opponentName}
+                playerIsHost={userType === 'host'}
                 playerScore={playerScore}
                 opponentScore={opponentScore}
                 showScore={roomData.players.length > 1}

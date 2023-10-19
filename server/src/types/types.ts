@@ -42,6 +42,7 @@ export enum TTTClientToServer {
 }
 
 export enum TTTServerToClient {
+    SendingGameState = 'sendingGameState',
     PlayerMoved = 'TTT_PlayerMoved',
     GameWon = 'TTT_gameWon',
 }
@@ -103,6 +104,7 @@ export type ServerToClientEvents = {
     [ServerToClient.GuestIsReady]: () => void;
     [ServerToClient.GuestIsNotReady]: () => void;
     [ServerToClient.GameStarts]: () => void;
+    [TTTServerToClient.SendingGameState]: () => void;
     [TTTServerToClient.PlayerMoved]: (newGameState: UpdatedGameState<TicTacToe>) => void;
     [TTTServerToClient.GameWon]: (gameWon: GameWon<TicTacToe>) => void;
 };
@@ -185,7 +187,7 @@ export type UpdatedGameState<T extends TicTacToe | BattleShips> = {
 export type GameWon<T extends TicTacToe | BattleShips> = {
     winner: UserType | 'draw';
     newScore: [number, number];
-    winningMove?: T extends TicTacToe ? TTTMove : BattleShipsMove;
+    winningMove?: T extends TicTacToe ? Coordinates[] : BattleShipsMove;
 };
 
 export type TicTacToeCell = '' | 'X' | 'O';
@@ -194,13 +196,15 @@ export type TicTacToe = {
     boardState: TicTacToeCell[][];
     lengthToWin: 4;
     winner?: UserType | 'draw';
-    winningMove?: TTTMove;
+    winningMove?: Coordinates[];
 };
 
 export type TTTMove = {
     type: 'X' | 'O';
-    coordinates: [number, number];
+    coordinates: Coordinates;
 };
+
+export type Coordinates = [number, number];
 
 export type BattleShipsBoardCell = '' | '[]' | 'X' | '*';
 export type BattleShipsBoard = BattleShipsBoardCell[][];
@@ -217,7 +221,7 @@ export type BattleShips = {
 
 export type BattleShipsMove = {
     player: UserType;
-    coordinates: [number, number];
+    coordinates: Coordinates;
 };
 
 export type MySocket = Socket<

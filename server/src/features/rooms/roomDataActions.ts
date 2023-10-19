@@ -3,6 +3,7 @@ import { rooms, playersInGame, games } from '../../data/data';
 import type {
     BattleShips,
     ClientRoom,
+    GameType,
     Room,
     RoomPreview,
     TicTacToe,
@@ -33,11 +34,15 @@ export const getClientRoomData = (roomId: string): ClientRoom => {
     };
 };
 
-export const validateRoom = (roomId: string) =>
-    rooms.has(roomId) && rooms.get(roomId).players.size < 2;
+export const userAlreadyInRoom = (roomId: string, userId: string) =>
+    rooms.has(roomId) && rooms.get(roomId).players.has(userId);
 
-export const allowRejoin = (roomId: string, userType: UserType) => {
-    if (!validateRoom(roomId)) return false;
+export const validateRoom = (roomId: string, userId: string) =>
+    rooms.has(roomId) &&
+    (userAlreadyInRoom(roomId, userId) || rooms.get(roomId).players.size < 2);
+
+export const allowRejoin = (roomId: string, userType: UserType, userId: string) => {
+    if (!validateRoom(roomId, userId)) return false;
     const hasHost = !!Array.from(rooms.get(roomId).players.values()).find(
         (user) => user.userType === 'host'
     );
@@ -57,6 +62,9 @@ export const getRoomPreview = (roomId: string): RoomPreview => {
         waitingForHost: room.waitingForHost,
     };
 };
+
+export const getRoomUsersIds = (roomId: string) =>
+    Array.from(rooms.get(roomId).players.keys());
 
 export const validateGuestName = ({ roomId, userName }): string => {
     const room = rooms.get(roomId);
@@ -171,13 +179,16 @@ export const createGame = (roomId: string) => {
     return changeRoomProp(roomId, 'gameState', 'playing');
 };
 
-const gameInitializer = {
+const gameInitializer: Record<
+    Exclude<GameType, 'choosing'>,
+    () => TicTacToe | BattleShips
+> = {
     ticTacToe: (): TicTacToe => ({
         playerToMove: Math.random() > 0.5 ? 'host' : 'guest',
         boardState: Array.from(new Array(10), () => Array.from(new Array(10)).fill('')),
         lengthToWin: 4,
     }),
-    battleShips: (): BattleShips => ({
+    battleships: (): BattleShips => ({
         playerToMove: Math.random() > 0.5 ? 'host' : 'guest',
         hostBoard: Array.from(new Array(10), () => Array.from(new Array(10)).fill('')),
         guestBorad: Array.from(new Array(10), () => Array.from(new Array(10)).fill('')),

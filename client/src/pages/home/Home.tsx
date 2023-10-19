@@ -3,10 +3,12 @@ import { useSubscribeToOnlineStatusQuery } from '../../app/services/api';
 import { userTypeKey } from '../../data/localStorageKeys';
 import { setTypedStorageItem } from '../../utils/typesLocalStorage';
 import { Container, Image } from 'react-bootstrap';
+import useAutoLeaveRoom from '../../hooks/useAutoLeave';
 import bgHome from '../../assets/bgHome.png';
 import styles from './homeStyles.module.scss';
 
 function Home() {
+    useAutoLeaveRoom();
     const { data: playingNow, isSuccess } = useSubscribeToOnlineStatusQuery();
 
     const handlePressJoin = () => {

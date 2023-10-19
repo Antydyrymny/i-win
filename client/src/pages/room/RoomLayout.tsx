@@ -10,7 +10,12 @@ import {
 import useRedirect from '../../hooks/useRedirect';
 import { getTypedStorageItem, setTypedStorageItem } from '../../utils/typesLocalStorage';
 import { accessDeniedErr } from '../../data/accessDeniedErr';
-import { userNameKey, userTypeKey, lastRoomKey } from '../../data/localStorageKeys';
+import {
+    userNameKey,
+    userTypeKey,
+    lastRoomKey,
+    wasInRoomKey,
+} from '../../data/localStorageKeys';
 import { Container, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import useClearToasts from '../../hooks/useClearToasts';
@@ -47,13 +52,13 @@ function RoomLayout() {
         `/room/${roomId}`,
         location.pathname !== `/room/${roomId}` &&
             !!roomData &&
-            roomData.readyStatus === false
+            roomData.gameType === 'choosing' &&
+            roomData.gameState !== 'playing'
     );
 
     useRedirect(
         `/room/${roomId}/${roomData?.gameType}`,
         !!roomData &&
-            roomData.readyStatus &&
             roomData.gameType !== 'choosing' &&
             roomData.gameState !== 'in lobby'
     );
@@ -86,10 +91,12 @@ function RoomLayout() {
         };
         join();
 
-        return () => {
-            if (userType === 'guest') guestLeave();
-            else hostLeave();
-        };
+        setTypedStorageItem(wasInRoomKey, true);
+
+        // return () => {
+        //     if (userType === 'guest') guestLeave();
+        //     else hostLeave();
+        // };
     }, [guestJoins, guestLeave, hostJoins, hostLeave, navigate, roomId]);
 
     useClearToasts();

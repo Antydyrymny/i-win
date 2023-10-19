@@ -21,7 +21,7 @@ export function subscribeToTicTacToeEvents(socket: MySocket) {
     socket.on(TTTClientToServer.MakingMove, (move) => {
         const roomId = getUsersRoom();
         const moveResult = processMove(roomId, move);
-        socket.to(roomId).emit(TTTServerToClient.PlayerMoved, moveResult.newGameState);
+        io.in(roomId).emit(TTTServerToClient.PlayerMoved, moveResult.newGameState);
         if (moveResult.gameWon) {
             io.in(roomId).emit(TTTServerToClient.GameWon, moveResult.gameWon);
             const updatedRoomPreview = changeRoomProp(

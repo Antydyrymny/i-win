@@ -1,6 +1,7 @@
 import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCreateRoomMutation } from '../../app/services/api';
+import useAutoLeaveRoom from '../../hooks/useAutoLeave';
 import { lastRoomKey } from '../../data/localStorageKeys';
 import { setTypedStorageItem } from '../../utils/typesLocalStorage';
 import { Col, Container, Row } from 'react-bootstrap';
@@ -9,6 +10,7 @@ import { toast } from 'react-toastify';
 import styles from './createRoomStyles.module.scss';
 
 function CreateRoom() {
+    useAutoLeaveRoom();
     const navigate = useNavigate();
     const [createRoom, { isLoading: isCreating, isSuccess: isCreated }] =
         useCreateRoomMutation();

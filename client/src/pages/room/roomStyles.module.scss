@@ -172,6 +172,12 @@
     color: $text-color-mainYellow;
 }
 
+@media (max-width: 768px) {
+    .tooltip {
+        top: 4rem;
+    }
+}
+
 @media (max-width: 1200px) {
     .description {
         display: none;

@@ -5,9 +5,11 @@ import { getTypedStorageItem } from '../../utils/typesLocalStorage';
 import { useSubscribeToAllRoomsQuery } from '../../app/services/api';
 import { Container, Table, Button, Spinner, Modal } from 'react-bootstrap';
 import NameInput from '../../components/nameInput/NameInput';
+import useAutoLeaveRoom from '../../hooks/useAutoLeave';
 import styles from './joinRoomStyles.module.scss';
 
 function JoinRoom() {
+    useAutoLeaveRoom();
     const { data: allRooms, isSuccess, isFetching } = useSubscribeToAllRoomsQuery();
     const [modalShow, setModalShow] = useState(false);
     const [chosenRoom, setChosenRoom] = useState('');

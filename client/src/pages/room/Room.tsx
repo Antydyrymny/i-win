@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect } from 'react';
+import { useCallback, useState } from 'react';
 import { useOutletContext } from 'react-router-dom';
 import {
     useChangeGameMutation,
@@ -8,44 +8,23 @@ import {
 } from '../../app/services/api';
 import { getTypedStorageItem } from '../../utils/typesLocalStorage';
 import { userTypeKey } from '../../data/localStorageKeys';
-import { ClientRoom, GameType, UserType } from '../../types/types';
+import useRoomUtils from '../../hooks/useRoomUtils';
+import useInformOfHostLeave from '../../hooks/useInformOfHostLeave';
+import { ClientRoom, GameType } from '../../types/types';
 import { Container, Button, Spinner } from 'react-bootstrap';
 import Sidebar from './Sidebar';
-import { toast } from 'react-toastify';
 import Vs from './Vs';
 import GameCarousel from './GameCarousel';
 import styles from './roomStyles.module.scss';
 
 function Room() {
     const roomData: ClientRoom = useOutletContext();
-    const userType: UserType = useMemo(
-        () => getTypedStorageItem(userTypeKey) ?? 'guest',
-        []
-    );
-    const playerName = useMemo(
-        () => roomData.players.find((user) => user.userType === userType)?.name,
-        [roomData.players, userType]
-    );
-    const opponentName = useMemo(
-        () => roomData.players.find((user) => user.userType !== userType)?.name,
-        [roomData.players, userType]
-    );
-    const [playerScore, opponentScore] = useMemo(
-        () =>
-            userType === 'host' ? roomData.score : [roomData.score[1], roomData.score[0]],
-        [roomData.score, userType]
-    );
 
-    useEffect(() => {
-        if (roomData.waitingForHost) {
-            toast.warn('Host left, lobby will be closed soon...', {
-                autoClose: 10000,
-                pauseOnHover: false,
-                progress: undefined,
-                theme: 'dark',
-            });
-        } else toast.dismiss();
-    }, [roomData.waitingForHost]);
+    const userType = getTypedStorageItem(userTypeKey) ?? 'guest';
+    const { playerName, opponentName, playerScore, opponentScore } = useRoomUtils(
+        roomData,
+        userType
+    );
 
     const [changeGame, { isLoading: isChanging }] = useChangeGameMutation();
     const [setReady, { isLoading: settingReady }] = useCheckReadyMutation();
@@ -64,6 +43,22 @@ function Room() {
         },
         [changeGame, isChanging, startingGame]
     );
+
+    const [show, setShow] = useState(false);
+    const [gameToDescribe, setGameToDescribe] =
+        useState<Exclude<GameType, 'choosing'>>('ticTacToe');
+
+    const handleClose = useCallback(() => setShow(false), []);
+    const showTicTacToe = useCallback(() => {
+        setGameToDescribe('ticTacToe');
+        setShow(true);
+    }, []);
+    const showBattleships = useCallback(() => {
+        setGameToDescribe('battleships');
+        setShow(true);
+    }, []);
+
+    useInformOfHostLeave(roomData.waitingForHost);
 
     const ReadyButton = () => (
         <Button
@@ -96,20 +91,6 @@ function Room() {
         </div>
     );
 
-    const [show, setShow] = useState(false);
-    const [gameToDescribe, setGameToDescribe] =
-        useState<Exclude<GameType, 'choosing'>>('ticTacToe');
-
-    const handleClose = useCallback(() => setShow(false), []);
-    const showTicTacToe = useCallback(() => {
-        setGameToDescribe('ticTacToe');
-        setShow(true);
-    }, []);
-    const showBattleships = useCallback(() => {
-        setGameToDescribe('battleships');
-        setShow(true);
-    }, []);
-
     return (
         <div className={styles.wrapper}>
             <Vs
@@ -133,8 +114,7 @@ function Room() {
                     </>
                 ) : (
                     <>
-                        <span className={styles.gameTitle}>Choose </span>
-                        <span className={styles.gameTitle}>the Game</span>
+                        <span className={styles.gameTitle}>Choose the Game</span>
                     </>
                 )}
             </Container>

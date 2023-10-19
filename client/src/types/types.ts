@@ -6,7 +6,12 @@ import {
 } from '@reduxjs/toolkit/query/react';
 import { EndpointBuilder } from '@reduxjs/toolkit/dist/query/endpointDefinitions';
 import getSocket from '../app/services/getSocket';
-import { userNameKey, userTypeKey, lastRoomKey } from '../data/localStorageKeys';
+import {
+    userNameKey,
+    userTypeKey,
+    lastRoomKey,
+    wasInRoomKey,
+} from '../data/localStorageKeys';
 
 export type ApiSocket = ReturnType<typeof getSocket>;
 export type ApiBuilder = EndpointBuilder<
@@ -25,6 +30,7 @@ export type LocalStorageSchema = {
     [userNameKey]: string;
     [userTypeKey]: UserType;
     [lastRoomKey]: RejoinRequest;
+    [wasInRoomKey]: boolean;
 };
 
 export type RejoinRequest = { roomId: string; userType: UserType };

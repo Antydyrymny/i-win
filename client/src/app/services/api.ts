@@ -96,14 +96,14 @@ const apiSlice = createApi({
                 socket.emit(ClientToServer.ChangingGame, gameType);
                 return { data: undefined };
             },
-            invalidatesTags: ['AllRooms', 'MyRoom'],
+            invalidatesTags: ['AllRooms', 'MyRoom', 'GameState'],
         }),
         checkReady: builder.mutation<void, void>({
             queryFn: () => {
                 socket.emit(ClientToServer.GuestCheksReady);
                 return { data: undefined };
             },
-            invalidatesTags: ['MyRoom'],
+            invalidatesTags: ['MyRoom', 'GameState'],
         }),
         uncheckReady: builder.mutation<void, void>({
             queryFn: () => {
@@ -117,7 +117,7 @@ const apiSlice = createApi({
                 socket.emit(ClientToServer.StartingGame);
                 return { data: undefined };
             },
-            invalidatesTags: ['AllRooms', 'MyRoom'],
+            invalidatesTags: ['AllRooms', 'MyRoom', 'GameState'],
         }),
         makeTTTMove: builder.mutation<void, TTTMove>({
             queryFn: (move) => {

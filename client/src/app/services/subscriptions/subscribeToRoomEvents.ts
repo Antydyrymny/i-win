@@ -40,15 +40,16 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                 });
                 socket.on(ServerToClient.GuestLeftRoom, (userId: string) => {
                     updateCachedData((draft) => {
-                        toast.error(
-                            `${
-                                draft.players.find((user) => user.id === userId)?.name
-                            } left!`,
-                            {
-                                autoClose: 2000,
-                                hideProgressBar: true,
-                            }
-                        );
+                        // toast.dismiss();
+                        // toast.error(
+                        //     `${
+                        //         draft.players.find((user) => user.id === userId)?.name
+                        //     } left!`,
+                        //     {
+                        //         autoClose: 2000,
+                        //         hideProgressBar: true,
+                        //     }
+                        // );
 
                         return {
                             ...draft,
@@ -61,6 +62,7 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                     ServerToClient.HostJoinedRoom,
                     (userId: string, name: string) => {
                         updateCachedData((draft) => {
+                            toast.dismiss();
                             toast.success(`⭐${name} rejoined!⭐`, {
                                 autoClose: 2000,
                                 hideProgressBar: true,
@@ -81,10 +83,11 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                     ServerToClient.GuestJoinedRoom,
                     (userId: string, name: string) => {
                         updateCachedData((draft) => {
-                            toast.success(`⭐${name} joined!⭐`, {
-                                autoClose: 2000,
-                                hideProgressBar: true,
-                            });
+                            // toast.dismiss();
+                            // toast.success(`⭐${name} joined!⭐`, {
+                            //     autoClose: 2000,
+                            //     hideProgressBar: true,
+                            // });
 
                             return {
                                 ...draft,

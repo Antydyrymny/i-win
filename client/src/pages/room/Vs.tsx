@@ -27,7 +27,6 @@ function Vs({
         ? 'Waiting for opponent...'
         : 'Waiting for host...';
 
-    console.log(showVs, opponentName);
     return (
         <Stack>
             <Container className={styles.vsBlock}>

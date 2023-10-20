@@ -26,6 +26,7 @@ export function subsctibeToRejoin(builder: ApiBuilder, socket: ApiSocket) {
             try {
                 await cacheDataLoaded;
                 socket.on(ServerToClient.RejoinStatusUpdated, (newStatus: boolean) => {
+                    console.log(newStatus);
                     updateCachedData(() => newStatus);
                 });
                 await cacheEntryRemoved;

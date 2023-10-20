@@ -35,9 +35,7 @@ export default function subscribeToFeatures() {
         });
 
         socket.on(ClientToServer.AllowRejoin, (rejoinRequest, acknowledgeRejoin) => {
-            acknowledgeRejoin(
-                allowRejoin(rejoinRequest.roomId, rejoinRequest.userType, socket.id)
-            );
+            acknowledgeRejoin(allowRejoin(rejoinRequest.roomId, rejoinRequest.userType));
             clearRejoinRooms(socket);
             socket.join(DefaultRooms.rejoining + rejoinRequest.roomId);
             socket.join(
@@ -83,6 +81,7 @@ export default function subscribeToFeatures() {
                 });
                 acknowledgeName(userName);
                 manageGameSubscriptions[getRoomPreview(roomId).gameType](socket);
+                handleRejoin(roomId);
 
                 socket
                     .to(roomId)
@@ -92,7 +91,6 @@ export default function subscribeToFeatures() {
                     ServerToClient.RoomPreviewUpdated,
                     updatedRoomPreview
                 );
-                handleRejoin(roomId, socket.id);
             }
         );
 
@@ -117,6 +115,7 @@ export default function subscribeToFeatures() {
                 });
                 acknowledgeName(nameValidated);
                 manageGameSubscriptions[getRoomPreview(roomId).gameType](socket);
+                handleRejoin(roomId);
 
                 socket
                     .to(roomId)
@@ -126,7 +125,6 @@ export default function subscribeToFeatures() {
                     ServerToClient.RoomPreviewUpdated,
                     updatedRoomPreview
                 );
-                handleRejoin(roomId, socket.id);
             }
         );
 
@@ -206,14 +204,14 @@ export default function subscribeToFeatures() {
             if (userType) onLeave(userType, roomId);
         });
 
-        const handleRejoin = (roomId: string, userId: string) => {
+        const handleRejoin = (roomId: string) => {
             io.in(DefaultRooms.guestRejoining + roomId).emit(
                 ServerToClient.RejoinStatusUpdated,
-                allowRejoin(roomId, 'guest', userId)
+                allowRejoin(roomId, 'guest')
             );
             io.in(DefaultRooms.hostRejoining + roomId).emit(
                 ServerToClient.RejoinStatusUpdated,
-                allowRejoin(roomId, 'host', userId)
+                allowRejoin(roomId, 'host')
             );
         };
 
@@ -223,7 +221,6 @@ export default function subscribeToFeatures() {
             manageGameSubscriptions['choosing'](socket); // unsubscribes from old game
 
             const updatedRoomPreview = clearUserFromRoom(socket.id, roomId, userType);
-            handleRejoin(roomId, socket.id);
             socket.leave(roomId);
             if (updatedRoomPreview) {
                 changeRoomProp(roomId, 'readyStatus', false);
@@ -232,6 +229,8 @@ export default function subscribeToFeatures() {
                     updatedRoomPreview
                 );
             }
+            handleRejoin(roomId);
+
             io.in(roomId).emit(ServerToClient.GuestIsNotReady);
             io.in(DefaultRooms.lobby).emit(ServerToClient.OnlineDecreased);
 

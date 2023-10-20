@@ -41,8 +41,9 @@ export const validateRoom = (roomId: string, userId: string) =>
     rooms.has(roomId) &&
     (userAlreadyInRoom(roomId, userId) || rooms.get(roomId).players.size < 2);
 
-export const allowRejoin = (roomId: string, userType: UserType, userId: string) => {
-    if (!validateRoom(roomId, userId)) return false;
+export const allowRejoin = (roomId: string, userType: UserType) => {
+    const room = rooms.get(roomId);
+    if (!room || room.players.size > 1) return false;
     const hasHost = !!Array.from(rooms.get(roomId).players.values()).find(
         (user) => user.userType === 'host'
     );

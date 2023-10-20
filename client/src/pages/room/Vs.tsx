@@ -27,13 +27,16 @@ function Vs({
         ? 'Waiting for opponent...'
         : 'Waiting for host...';
 
+    console.log(showVs, opponentName);
     return (
         <Stack>
-            <Container
-                style={{ display: showVs && opponentName ? 'block' : 'none' }}
-                className={styles.vsBlock}
-            >
-                <Image className={styles.vs} src={vs} alt='vs' />
+            <Container className={styles.vsBlock}>
+                <Image
+                    style={{ display: showVs && opponentName ? 'inherit' : 'none' }}
+                    className={styles.vs}
+                    src={vs}
+                    alt='vs'
+                />
             </Container>
 
             <div className={styles.main}>

@@ -220,6 +220,8 @@ export default function subscribeToFeatures() {
         const onLeave = (userType: UserType, roomId: string) => {
             if (!roomId) return;
 
+            manageGameSubscriptions['choosing'](socket); // unsubscribes from old game
+
             const updatedRoomPreview = clearUserFromRoom(socket.id, roomId, userType);
             handleRejoin(roomId, socket.id);
             socket.leave(roomId);

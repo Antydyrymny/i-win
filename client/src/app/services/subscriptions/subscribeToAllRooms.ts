@@ -6,7 +6,6 @@ import {
     RoomPreview,
     UpdatedRoomPreview,
 } from '../../../types/types';
-import { toast } from 'react-toastify';
 
 export function subscribeToAllRooms(builder: ApiBuilder, socket: ApiSocket) {
     return builder.query<RoomPreview[], void>({
@@ -25,10 +24,6 @@ export function subscribeToAllRooms(builder: ApiBuilder, socket: ApiSocket) {
                 await cacheDataLoaded;
                 socket.on(ServerToClient.RoomCreated, (room: RoomPreview) => {
                     updateCachedData((draft) => {
-                        toast.info(`New room created: ${room.name}`, {
-                            autoClose: 2000,
-                            hideProgressBar: true,
-                        });
                         return [...draft, room];
                     });
                 });

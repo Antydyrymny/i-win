@@ -15,7 +15,11 @@ export const getTTTGameState = (roomId: string): TicTacToe =>
 export const processMove = (
     roomId: string,
     move: TTTMove
-): { newGameState: UpdatedGameState<TicTacToe>; gameWon: GameWon<TicTacToe> | false } => {
+): {
+    newGameState: UpdatedGameState<TicTacToe>;
+    gameWon: GameWon<TicTacToe> | false;
+    newScore: [number, number] | null;
+} => {
     const game = games.ticTacToe.get(roomId) as TicTacToe;
     const [row, col] = move.coordinates;
     game.boardState[row][col] = move.type;
@@ -26,13 +30,13 @@ export const processMove = (
     };
     const winningMove = validateBoard(game.boardState, move, game.lengthToWin);
     let gameWon: GameWon<TicTacToe> | false = false;
+    let newScore: [number, number] | null = null;
     if (winningMove) {
         newGameState.playerToMove = null;
         const room = rooms.get(roomId);
         if (winningMove === 'draw') {
             gameWon = {
                 winner: 'draw',
-                newScore: room.score,
             };
             game.winner = 'draw';
         } else {
@@ -42,18 +46,19 @@ export const processMove = (
                 winner === 'host'
                     ? [hostsPoints + 1, guestsPoints]
                     : [hostsPoints, guestsPoints + 1];
+            newScore = room.score;
             gameWon = {
                 winner,
-                newScore: room.score,
                 winningMove,
             };
+
             game.winner = winner;
             game.winningMove = winningMove;
         }
         game.playerToMove = null;
     }
 
-    return { newGameState, gameWon };
+    return { newGameState, gameWon, newScore };
 };
 
 const directions: Coordinates[] = [

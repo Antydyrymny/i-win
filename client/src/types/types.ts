@@ -65,6 +65,7 @@ export enum ServerToClient {
     GuestIsReady = 'guestIsReady',
     GuestIsNotReady = 'guestIsNotReady',
     GameStarts = 'gameStarts',
+    GameEnds = 'gameEnds',
     HostLeftRoom = 'hostLeft',
     GuestLeftRoom = 'guestLeft',
     RoomDeleted = 'roomDeleted',
@@ -152,7 +153,6 @@ export type UpdatedGameState<T extends TicTacToe | BattleShips> = {
 
 export type GameWon<T extends TicTacToe | BattleShips> = {
     winner: UserType | 'draw';
-    newScore: [number, number];
     winningMove?: T extends TicTacToe ? Coordinates[] : BattleShipsMove;
 };
 

@@ -31,6 +31,7 @@ export enum ServerToClient {
     GuestIsReady = 'guestIsReady',
     GuestIsNotReady = 'guestIsNotReady',
     GameStarts = 'gameStarts',
+    GameEnds = 'gameEnds',
     HostLeftRoom = 'hostLeft',
     GuestLeftRoom = 'guestLeft',
     RoomDeleted = 'roomDeleted',
@@ -104,7 +105,8 @@ export type ServerToClientEvents = {
     [ServerToClient.GuestIsReady]: () => void;
     [ServerToClient.GuestIsNotReady]: () => void;
     [ServerToClient.GameStarts]: () => void;
-    [TTTServerToClient.SendingGameState]: () => void;
+    [ServerToClient.GameEnds]: (newScore: [number, number]) => void;
+    [TTTServerToClient.SendingGameState]: (gameState: GameState) => void;
     [TTTServerToClient.PlayerMoved]: (newGameState: UpdatedGameState<TicTacToe>) => void;
     [TTTServerToClient.GameWon]: (gameWon: GameWon<TicTacToe>) => void;
 };
@@ -186,7 +188,6 @@ export type UpdatedGameState<T extends TicTacToe | BattleShips> = {
 
 export type GameWon<T extends TicTacToe | BattleShips> = {
     winner: UserType | 'draw';
-    newScore: [number, number];
     winningMove?: T extends TicTacToe ? Coordinates[] : BattleShipsMove;
 };
 

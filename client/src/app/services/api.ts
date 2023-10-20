@@ -61,7 +61,13 @@ const apiSlice = createApi({
                     );
                 });
             },
-            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom', 'RejoinStatus'],
+            invalidatesTags: [
+                'OnlineNumber',
+                'AllRooms',
+                'MyRoom',
+                'RejoinStatus',
+                'GameState',
+            ],
         }),
         guestJoinRoom: builder.mutation<string, JoinRoomRequest>({
             queryFn: (joinRoomRequest) => {
@@ -75,7 +81,13 @@ const apiSlice = createApi({
                     );
                 });
             },
-            invalidatesTags: ['OnlineNumber', 'AllRooms', 'MyRoom', 'RejoinStatus'],
+            invalidatesTags: [
+                'OnlineNumber',
+                'AllRooms',
+                'MyRoom',
+                'RejoinStatus',
+                'GameState',
+            ],
         }),
         hostLeave: builder.mutation<void, void>({
             queryFn: () => {
@@ -117,7 +129,7 @@ const apiSlice = createApi({
                 socket.emit(ClientToServer.StartingGame);
                 return { data: undefined };
             },
-            invalidatesTags: ['AllRooms', 'MyRoom', 'GameState'],
+            invalidatesTags: ['AllRooms', 'MyRoom'],
         }),
         makeTTTMove: builder.mutation<void, TTTMove>({
             queryFn: (move) => {

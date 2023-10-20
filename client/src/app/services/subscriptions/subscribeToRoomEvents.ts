@@ -1,3 +1,4 @@
+import apiSlice from '../api';
 import {
     type ApiSocket,
     type ApiBuilder,
@@ -6,6 +7,7 @@ import {
     GameType,
     TTTServerToClient,
     ClientRoom,
+    GameState,
 } from '../../../types/types';
 import { toast } from 'react-toastify';
 
@@ -22,7 +24,7 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
         },
         async onCacheEntryAdded(
             _,
-            { cacheDataLoaded, cacheEntryRemoved, updateCachedData }
+            { cacheDataLoaded, cacheEntryRemoved, updateCachedData, dispatch }
         ) {
             try {
                 await cacheDataLoaded;
@@ -110,16 +112,28 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                     });
                 });
                 socket.on(ServerToClient.GameStarts, () => {
+                    dispatch(apiSlice.util.invalidateTags(['GameState']));
                     updateCachedData((draft) => {
                         return { ...draft, gameState: 'playing' };
                     });
                 });
-                socket.on(TTTServerToClient.SendingGameState, () => {
+                socket.on(TTTServerToClient.SendingGameState, (gameState: GameState) => {
                     updateCachedData((draft) => {
-                        return { ...draft, gameState: 'playing' };
+                        return { ...draft, gameState: gameState };
                     });
                 });
-
+                socket.on(
+                    ServerToClient.GameEnds,
+                    (newScore: [number, number] | null) => {
+                        updateCachedData((draft) => {
+                            return {
+                                ...draft,
+                                score: newScore || draft.score,
+                                gameState: 'viewing results',
+                            };
+                        });
+                    }
+                );
                 socket.on(ServerToClient.RoomDeleted, () => {
                     updateCachedData((draft) => {
                         return { ...draft, deleted: true };
@@ -134,6 +148,7 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                 socket.off(ServerToClient.GuestIsReady);
                 socket.off(ServerToClient.GuestIsNotReady);
                 socket.off(ServerToClient.GameStarts);
+                socket.off(ServerToClient.GameEnds);
                 socket.off(ServerToClient.RoomDeleted);
                 socket.off(TTTServerToClient.SendingGameState);
             } catch {

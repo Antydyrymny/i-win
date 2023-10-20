@@ -104,10 +104,12 @@ function Room() {
             <Container className={styles.readyButtons}>
                 {roomData.gameType !== 'choosing' ? (
                     <>
-                        <span className={styles.gameTitle}>Playing</span>
+                        <span className={`${styles.gameTitle}  ${styles.pulse}`}>
+                            Playing
+                        </span>
                         {userType === 'guest' && <ReadyButton />}
                         {userType === 'host' && <StartButton />}
-                        <span className={styles.gameTitle}>
+                        <span className={`${styles.gameTitle} ${styles.pulse}`}>
                             {roomData.gameType === 'ticTacToe'
                                 ? 'Tic-Tac-Toe'
                                 : 'Battleships'}

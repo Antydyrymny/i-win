@@ -121,7 +121,7 @@
     @include flexbox;
     position: relative;
     top: 2.2rem;
-    gap: 15%;
+    gap: 10%;
     width: 100vw;
 }
 
@@ -183,6 +183,22 @@
     top: 3.3rem;
     font-size: 0.875rem;
     color: $text-color-mainYellow;
+}
+
+.pulse {
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
 }
 
 @media (max-width: 768px) {

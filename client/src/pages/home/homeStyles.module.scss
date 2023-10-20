@@ -118,6 +118,11 @@
 
 .footerBtn {
     white-space: pre;
+    cursor: auto;
+}
+
+.footerBtn:hover {
+    box-shadow: none;
 }
 
 @media (max-width: 1200px) {

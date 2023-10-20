@@ -1,14 +1,20 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useSubscribeToOnlineStatusQuery } from '../../app/services/api';
 import { userTypeKey } from '../../data/localStorageKeys';
 import { setTypedStorageItem } from '../../utils/typesLocalStorage';
-import { Container, Image } from 'react-bootstrap';
+import { Container, Image, Spinner } from 'react-bootstrap';
 import useAutoLeaveRoom from '../../hooks/useAutoLeave';
 import bgHome from '../../assets/bgHome.png';
 import styles from './homeStyles.module.scss';
 
 function Home() {
     useAutoLeaveRoom();
+    const [loading, setLoading] = useState(true);
+    const imagesLoaded = () => {
+        setLoading(false);
+    };
+
     const { data: playingNow, isSuccess } = useSubscribeToOnlineStatusQuery();
 
     const handlePressJoin = () => {
@@ -21,7 +27,16 @@ function Home() {
 
     return (
         <div className={styles.wrapper}>
-            <Container className={styles.main}>
+            <Container
+                style={{ display: loading ? 'flex' : 'none' }}
+                className='vh-100 justify-content-center align-items-center'
+            >
+                <Spinner variant='warning' />
+            </Container>
+            <Container
+                style={{ display: loading ? 'none' : 'block' }}
+                className={styles.main}
+            >
                 <div className={styles.textBlock}>
                     <h1>Online games for friends!</h1>
                     <p>
@@ -47,7 +62,7 @@ function Home() {
                         </Link>
                     </div>
                 </div>
-                <div className={styles.decoration}>
+                <div className={styles.decoration} onLoad={imagesLoaded}>
                     <Image className={styles.img} src={bgHome} alt='home-background' />
                 </div>
             </Container>

@@ -1,6 +1,6 @@
 import React, { Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { Spinner } from 'react-bootstrap';
+import { Container, Spinner } from 'react-bootstrap';
 import Nav from './components/nav/Nav';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
@@ -15,7 +15,13 @@ const LazyBattleships = React.lazy(() => import('./pages/battleships/Battleships
 
 function App() {
     return (
-        <Suspense fallback={<Spinner />}>
+        <Suspense
+            fallback={
+                <Container className='vh-100 d-flex justify-content-center align-items-center'>
+                    <Spinner variant='warning' />
+                </Container>
+            }
+        >
             <Nav />
             <Routes>
                 <Route path='/' element={<LazyHome />} />

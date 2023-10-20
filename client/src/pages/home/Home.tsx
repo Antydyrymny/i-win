@@ -29,7 +29,7 @@ function Home() {
         <div className={styles.wrapper}>
             <Container
                 style={{ display: loading ? 'flex' : 'none' }}
-                className='vh-100 justify-content-center align-items-center'
+                className={`${styles.spinner} justify-content-center align-items-center`}
             >
                 <Spinner variant='warning' />
             </Container>

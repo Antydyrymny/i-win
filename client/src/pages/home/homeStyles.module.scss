@@ -8,6 +8,10 @@
     overflow: clip;
 }
 
+.spinner {
+    min-height: calc(100vh - 8rem);
+}
+
 .main {
     margin-top: 10%;
 }
@@ -90,7 +94,8 @@
 }
 
 .footerWrapper {
-    position: relative;
+    position: fixed;
+    bottom: 0;
     height: 5rem;
     @include flexbox;
 }

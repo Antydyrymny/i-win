@@ -29,11 +29,13 @@ function Vs({
 
     return (
         <Stack>
-            {showVs && opponentName && (
-                <Container className={styles.vsBlock}>
-                    <Image className={styles.vs} src={vs} alt='vs' />
-                </Container>
-            )}
+            <Container
+                style={{ display: showVs && opponentName ? 'block' : 'none' }}
+                className={styles.vsBlock}
+            >
+                <Image className={styles.vs} src={vs} alt='vs' />
+            </Container>
+
             <div className={styles.main}>
                 <div className={styles.player}>
                     <div className={styles.name}>

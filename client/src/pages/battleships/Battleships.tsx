@@ -1,9 +1,12 @@
-import { useEffect, useState } from 'react';
-import { useOutletContext } from 'react-router-dom';
-import styles from './battleshipStyles.module.scss';
+import GameWrapper from '../../components/gameWrapper/GameWrapper';
+// import styles from './battleshipStyles.module.scss';
 
 function Battleships() {
-    return <div>Battleships</div>;
+    return (
+        <GameWrapper>
+            <div>Battleships</div>
+        </GameWrapper>
+    );
 }
 
 export default Battleships;

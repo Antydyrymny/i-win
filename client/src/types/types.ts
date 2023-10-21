@@ -65,6 +65,7 @@ export enum ServerToClient {
     GuestIsReady = 'guestIsReady',
     GuestIsNotReady = 'guestIsNotReady',
     GameStarts = 'gameStarts',
+    SendingGameState = 'sendingState',
     GameEnds = 'gameEnds',
     HostLeftRoom = 'hostLeft',
     GuestLeftRoom = 'guestLeft',
@@ -72,19 +73,26 @@ export enum ServerToClient {
 }
 
 export enum TTTClientToServer {
-    RequestingGameState = 'TTT_RequestringState',
-    MakingMove = 'TTT_MakingMove',
+    RequestingGameState = 'TTT_requestingState',
+    MakingMove = 'TTT_makingMove',
 }
 
 export enum TTTServerToClient {
-    SendingGameState = 'sendingGameState',
-    PlayerMoved = 'TTT_PlayerMoved',
+    PlayerMoved = 'TTT_playerMoved',
     GameWon = 'TTT_gameWon',
 }
 
-export enum BSClientToServer {}
+export enum BSClientToServer {
+    RequestingGameState = 'BS_requestingState',
+    UserIsReady = 'BS_userReady',
+    MakingMove = 'BS_makingMove',
+}
 
-export enum BSServerToClient {}
+export enum BSServerToClient {
+    PlayersReady = 'BS_playersReady',
+    PlayerMoved = 'BS_playerMoved',
+    GameWon = 'BS_gameWon',
+}
 
 export type UserType = 'host' | 'guest';
 
@@ -147,13 +155,22 @@ export type GameType = 'choosing' | 'ticTacToe' | 'battleships';
 export type GameState = 'in lobby' | 'playing' | 'viewing results';
 
 export type UpdatedGameState<T extends TicTacToe | BattleShips> = {
-    newMove: T extends TicTacToe ? TTTMove : BattleShipsMove;
+    newMove: T extends TicTacToe ? TTTMove : BSMoveResult;
     playerToMove: UserType | null;
 };
 
+export type BSMoveResult = BattleShipsMove &
+    (
+        | {
+              result: 'miss';
+          }
+        | { result: 'hit'; name: string }
+        | { result: 'destroyed'; name: string; shipCoords: Coordinates[] }
+    );
+
 export type GameWon<T extends TicTacToe | BattleShips> = {
-    winner: UserType | 'draw';
-    winningMove?: T extends TicTacToe ? Coordinates[] : BattleShipsMove;
+    winner: T extends TicTacToe ? UserType | 'draw' : UserType;
+    winningMove?: T extends TicTacToe ? Coordinates[] : undefined;
 };
 
 export type TicTacToeCell = '' | 'X' | 'O';
@@ -172,20 +189,73 @@ export type TTTMove = {
 
 export type Coordinates = [number, number];
 
-export type BattleShipsBoardCell = '' | '[]' | 'X' | '*';
-export type BattleShipsBoard = BattleShipsBoardCell[][];
-
 export type BattleShips = {
     playerToMove: UserType;
-    hostBoard: BattleShipsBoard;
-    guestBorad: BattleShipsBoard;
-    hostHealth: number; // initial of 17 = 1 of 5-square, 1 of 4, 2 of 3, 1 of 2 ships
-    guestHealth: number;
+    hostReady: boolean;
+    guestReady: boolean;
+    hostMisses: Coordinates[];
+    guestMisses: Coordinates[];
+    hostShips?: AllShips;
+    guestShips?: AllShips;
     winner?: UserType;
-    winningMove?: BattleShipsMove;
 };
 
+export type ClientBattleShips = {
+    playerToMove: UserType;
+    hostReady: boolean;
+    guestReady: boolean;
+    hostMisses: Coordinates[];
+    guestMisses: Coordinates[];
+    hostShips?: Ship[];
+    guestShips?: Ship[];
+    winner?: UserType;
+};
+
+export type AllShips = [
+    {
+        name: string;
+        state: 'O' | 'X';
+        coords: [ShipBlock, ShipBlock, ShipBlock, ShipBlock, ShipBlock];
+    },
+    {
+        name: string;
+        state: 'O' | 'X';
+        coords: [ShipBlock, ShipBlock, ShipBlock, ShipBlock];
+    },
+    {
+        name: string;
+        state: 'O' | 'X';
+        coords: [ShipBlock, ShipBlock, ShipBlock];
+    },
+    {
+        name: string;
+        state: 'O' | 'X';
+        coords: [ShipBlock, ShipBlock, ShipBlock];
+    },
+    {
+        name: string;
+        state: 'O' | 'X';
+        coords: [ShipBlock, ShipBlock];
+    }
+];
+
+export type PlayerShips = [
+    [ShipBlock, ShipBlock, ShipBlock, ShipBlock, ShipBlock],
+    [ShipBlock, ShipBlock, ShipBlock, ShipBlock],
+    [ShipBlock, ShipBlock, ShipBlock],
+    [ShipBlock, ShipBlock, ShipBlock],
+    [ShipBlock, ShipBlock]
+];
+
+export type Ship = {
+    name: string;
+    state: 'O' | 'X';
+    coords: ShipBlock[];
+};
+
+export type ShipBlock = [number, number, 'O' | 'X'];
+
 export type BattleShipsMove = {
-    player: UserType;
+    target: UserType;
     coordinates: Coordinates;
 };

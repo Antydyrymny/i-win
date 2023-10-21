@@ -5,7 +5,6 @@ import {
     ClientToServer,
     ServerToClient,
     GameType,
-    TTTServerToClient,
     ClientRoom,
     GameState,
 } from '../../../types/types';
@@ -120,7 +119,7 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                         return { ...draft, gameState: 'playing' };
                     });
                 });
-                socket.on(TTTServerToClient.SendingGameState, (gameState: GameState) => {
+                socket.on(ServerToClient.SendingGameState, (gameState: GameState) => {
                     updateCachedData((draft) => {
                         return { ...draft, gameState: gameState };
                     });
@@ -151,9 +150,9 @@ export function subscribeToRoomEvents(builder: ApiBuilder, socket: ApiSocket) {
                 socket.off(ServerToClient.GuestIsReady);
                 socket.off(ServerToClient.GuestIsNotReady);
                 socket.off(ServerToClient.GameStarts);
+                socket.off(ServerToClient.SendingGameState);
                 socket.off(ServerToClient.GameEnds);
                 socket.off(ServerToClient.RoomDeleted);
-                socket.off(TTTServerToClient.SendingGameState);
             } catch {
                 // if cacheEntryRemoved resolved before cacheDataLoaded,
                 // cacheDataLoaded throws

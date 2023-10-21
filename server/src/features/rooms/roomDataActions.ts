@@ -186,16 +186,15 @@ const gameInitializer: Record<
 > = {
     ticTacToe: (): TicTacToe => ({
         playerToMove: Math.random() > 0.5 ? 'host' : 'guest',
-        // boardState: Array.from(new Array(5), () => Array.from(new Array(5)).fill('')),
         boardState: Array.from(new Array(10), () => Array.from(new Array(10)).fill('')),
         lengthToWin: 4,
     }),
     battleships: (): BattleShips => ({
         playerToMove: Math.random() > 0.5 ? 'host' : 'guest',
-        hostBoard: Array.from(new Array(10), () => Array.from(new Array(10)).fill('')),
-        guestBorad: Array.from(new Array(10), () => Array.from(new Array(10)).fill('')),
-        hostHealth: 17,
-        guestHealth: 17,
+        hostReady: false,
+        guestReady: false,
+        hostMisses: [],
+        guestMisses: [],
     }),
 };
 

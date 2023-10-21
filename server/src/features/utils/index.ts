@@ -20,5 +20,5 @@ export function clearRejoinRooms(socket: MySocket) {
     roomsToClear.forEach((room) => socket.leave(room));
 }
 
-export const swapTurns = (lastMoveBy: UserType): UserType =>
+export const getOppositeUserType = (lastMoveBy: UserType): UserType =>
     lastMoveBy === 'host' ? 'guest' : 'host';

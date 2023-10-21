@@ -1,5 +1,7 @@
 import { io } from '../../app';
 import { createUsersRoomGetter } from '../utils';
+import { changeRoomProp, getRoomPreview } from '../rooms/roomDataActions';
+import { getTTTGameState, processTTTMove } from './tic-tac-toeDataActions';
 import {
     MySocket,
     DefaultRooms,
@@ -7,8 +9,6 @@ import {
     TTTClientToServer,
     TTTServerToClient,
 } from '../../types/types';
-import { getTTTGameState, processMove } from './tic-tac-toeDataActions';
-import { changeRoomProp, getRoomPreview } from '../rooms/roomDataActions';
 
 export function subscribeToTicTacToeEvents(socket: MySocket) {
     const getUsersRoom = createUsersRoomGetter(socket);
@@ -17,14 +17,14 @@ export function subscribeToTicTacToeEvents(socket: MySocket) {
         const roomId = getUsersRoom();
         acknowledgeTTCState(getTTTGameState(roomId));
         io.to(socket.id).emit(
-            TTTServerToClient.SendingGameState,
+            ServerToClient.SendingGameState,
             getRoomPreview(roomId).gameState
         );
     });
 
     socket.on(TTTClientToServer.MakingMove, (move) => {
         const roomId = getUsersRoom();
-        const moveResult = processMove(roomId, move);
+        const moveResult = processTTTMove(roomId, move);
         io.in(roomId).emit(TTTServerToClient.PlayerMoved, moveResult.newGameState);
         if (moveResult.gameWon) {
             io.in(roomId).emit(TTTServerToClient.GameWon, moveResult.gameWon);

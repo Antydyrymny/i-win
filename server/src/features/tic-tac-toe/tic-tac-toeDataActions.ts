@@ -1,4 +1,5 @@
 import { rooms, games } from '../../data/data';
+import { getOppositeUserType } from '../utils';
 import type {
     TTTMove,
     TicTacToe,
@@ -7,12 +8,11 @@ import type {
     GameWon,
     Coordinates,
 } from '../../types/types';
-import { swapTurns } from '../utils';
 
 export const getTTTGameState = (roomId: string): TicTacToe =>
     games.ticTacToe.get(roomId) as TicTacToe;
 
-export const processMove = (
+export const processTTTMove = (
     roomId: string,
     move: TTTMove
 ): {
@@ -23,7 +23,7 @@ export const processMove = (
     const game = games.ticTacToe.get(roomId) as TicTacToe;
     const [row, col] = move.coordinates;
     game.boardState[row][col] = move.type;
-    game.playerToMove = swapTurns(game.playerToMove);
+    game.playerToMove = getOppositeUserType(game.playerToMove);
     const newGameState: UpdatedGameState<TicTacToe> = {
         newMove: move,
         playerToMove: game.playerToMove,
@@ -40,7 +40,7 @@ export const processMove = (
             };
             game.winner = 'draw';
         } else {
-            const winner = swapTurns(game.playerToMove);
+            const winner = getOppositeUserType(game.playerToMove);
             const [hostsPoints, guestsPoints] = room.score;
             room.score =
                 winner === 'host'

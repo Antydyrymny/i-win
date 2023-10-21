@@ -164,8 +164,7 @@ export type BSMoveResult = BattleShipsMove &
         | {
               result: 'miss';
           }
-        | { result: 'hit'; name: string }
-        | { result: 'destroyed'; name: string; shipCoords: Coordinates[] }
+        | { result: 'hit' | 'destroyed'; name: string }
     );
 
 export type GameWon<T extends TicTacToe | BattleShips> = {
@@ -190,18 +189,18 @@ export type TTTMove = {
 export type Coordinates = [number, number];
 
 export type BattleShips = {
-    playerToMove: UserType;
+    playerToMove: UserType | null;
     hostReady: boolean;
     guestReady: boolean;
     hostMisses: Coordinates[];
-    guestMisses: Coordinates[];
+    guestMisse: Coordinates[];
     hostShips?: AllShips;
     guestShips?: AllShips;
     winner?: UserType;
 };
 
 export type ClientBattleShips = {
-    playerToMove: UserType;
+    playerToMove: UserType | null;
     hostReady: boolean;
     guestReady: boolean;
     hostMisses: Coordinates[];

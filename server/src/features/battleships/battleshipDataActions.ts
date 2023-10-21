@@ -113,7 +113,6 @@ export const processBSMove = (
                     ...move,
                     result: 'destroyed',
                     name: game[move.target + 'Ships'][damagedShipInd].name,
-                    shipCoords: game[move.target + 'Ships'][damagedShipInd].coords,
                 },
             },
         };
@@ -134,7 +133,6 @@ export const processBSMove = (
                 ...move,
                 result: 'destroyed',
                 name: game[move.target + 'Ships'][damagedShipInd].name,
-                shipCoords: game[move.target + 'Ships'][damagedShipInd].coords,
             },
         },
         gameWon: {

@@ -100,7 +100,13 @@ export type ClientToServerEvents = {
         userType: UserType,
         acknowledgeBSState: (gameState: ClientBattleShips) => void
     ) => void;
-    [BSClientToServer.UserIsReady]: (userType: UserType, ships: PlayerShips) => void;
+    [BSClientToServer.UserIsReady]: ({
+        userType,
+        ships,
+    }: {
+        userType: UserType;
+        ships: PlayerShips;
+    }) => void;
     [BSClientToServer.MakingMove]: (move: BattleShipsMove) => void;
 };
 
@@ -217,8 +223,7 @@ export type BSMoveResult = BattleShipsMove &
         | {
               result: 'miss';
           }
-        | { result: 'hit'; name: string }
-        | { result: 'destroyed'; name: string; shipCoords: ShipBlock[] }
+        | { result: 'hit' | 'destroyed'; name: string }
     );
 
 export type GameWon<T extends TicTacToe | BattleShips> = {
@@ -243,7 +248,7 @@ export type TTTMove = {
 export type Coordinates = [number, number];
 
 export type BattleShips = {
-    playerToMove: UserType;
+    playerToMove: UserType | null;
     hostReady: boolean;
     guestReady: boolean;
     hostMisses: Coordinates[];
@@ -254,7 +259,7 @@ export type BattleShips = {
 };
 
 export type ClientBattleShips = {
-    playerToMove: UserType;
+    playerToMove: UserType | null;
     hostReady: boolean;
     guestReady: boolean;
     hostMisses: Coordinates[];

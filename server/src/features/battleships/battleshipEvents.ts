@@ -22,7 +22,7 @@ export function subscribeToBatleshipsEvents(socket: MySocket) {
         );
     });
 
-    socket.on(BSClientToServer.UserIsReady, (userType, ships) => {
+    socket.on(BSClientToServer.UserIsReady, ({ userType, ships }) => {
         const roomId = getUsersRoom();
         if (setShipData(roomId, userType, ships)) {
             io.in(roomId).emit(BSServerToClient.PlayersReady);

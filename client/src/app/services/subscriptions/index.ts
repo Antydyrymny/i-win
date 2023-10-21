@@ -3,3 +3,4 @@ export { subscribeToAllRooms } from './subscribeToAllRooms';
 export { subscribeToRoomEvents } from './subscribeToRoomEvents';
 export { subsctibeToRejoin } from './subscribeToRejoin';
 export { subscribeToTicTacToe } from './subscribeToTicTacToe';
+export { subscribeToBattleShips } from './subscribeToBattleShips';

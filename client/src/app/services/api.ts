@@ -6,6 +6,10 @@ import {
     GameType,
     TTTClientToServer,
     TTTMove,
+    UserType,
+    PlayerShips,
+    BSClientToServer,
+    BattleShipsMove,
 } from '../../types/types';
 import {
     subscribeToOnlineStatus,
@@ -13,6 +17,7 @@ import {
     subscribeToRoomEvents,
     subsctibeToRejoin,
     subscribeToTicTacToe,
+    subscribeToBattleShips,
 } from './subscriptions';
 
 const baseUrl =
@@ -34,6 +39,7 @@ const apiSlice = createApi({
         subscribeToRoomEvents: subscribeToRoomEvents(builder, socket),
         subscribeToTicTacToe: subscribeToTicTacToe(builder, socket),
         subsctibeToRejoin: subsctibeToRejoin(builder, socket),
+        subscribeToBattleShips: subscribeToBattleShips(builder, socket),
 
         createRoom: builder.mutation<string, string>({
             queryFn: (userName) => {
@@ -138,6 +144,20 @@ const apiSlice = createApi({
             },
             invalidatesTags: ['GameState'],
         }),
+        setBSReady: builder.mutation<void, { userType: UserType; ships: PlayerShips }>({
+            queryFn: (userReady) => {
+                socket.emit(BSClientToServer.UserIsReady, userReady);
+                return { data: undefined };
+            },
+            invalidatesTags: ['GameState'],
+        }),
+        makeBSMove: builder.mutation<void, BattleShipsMove>({
+            queryFn: (move) => {
+                socket.emit(BSClientToServer.MakingMove, move);
+                return { data: undefined };
+            },
+            invalidatesTags: ['GameState'],
+        }),
     }),
 });
 
@@ -159,4 +179,7 @@ export const {
     useStartGameMutation,
     useSubscribeToTicTacToeQuery,
     useMakeTTTMoveMutation,
+    useSubscribeToBattleShipsQuery,
+    useSetBSReadyMutation,
+    useMakeBSMoveMutation,
 } = apiSlice;

@@ -1,0 +1,89 @@
+@use '../../styles/index.scss' as *;
+
+.wrapper {
+    min-height: calc(100vh - 4rem);
+    background-image: url('../../assets/bg.jpg');
+    background-repeat: no-repeat;
+    gap: 1.25rem;
+}
+
+.modalWrapper {
+    background-color: $bg-color-nav;
+    min-width: 30rem;
+    border-radius: 1.5rem !important;
+}
+
+.modal {
+    display: block;
+    background-color: $bg-color-nav;
+    border: none;
+}
+
+.modalTitle {
+    margin-block: 1rem;
+}
+
+.modalHeader {
+    border-radius: 1.5rem !important;
+}
+
+.modalBody {
+    @include flexbox;
+    gap: 1.5rem;
+    border-radius: 1.5rem !important;
+}
+
+.title {
+    margin-block: 2.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    line-height: 1;
+    font-weight: 600;
+    color: $text-color-glow;
+    text-shadow: rgba(12, 19, 55, 0.004) 0px -3px 2px, rgb(27, 122, 226) 0px -1px 4px,
+        rgb(27, 122, 226) 0px -2px 10px, rgb(27, 122, 226) 0px -10px 20px,
+        rgb(27, 122, 226) 0px -18px 40px;
+}
+
+.btn {
+    @include flexbox;
+    min-width: 12rem;
+    position: relative;
+    border-radius: 2.5rem;
+    background: linear-gradient(94.97deg, #4e00a9 1.93%, #f1008e 96.93%);
+    padding: 1rem 1.5rem;
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 600;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 0;
+    outline: none;
+    margin-bottom: 1rem;
+}
+
+.btn:hover {
+    box-shadow: 0 0 30px #7442c8;
+}
+
+.btnBlack::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border-radius: 50px;
+    background: #11132a;
+    z-index: -1;
+}
+
+.vs {
+    width: 100%;
+    position: sticky;
+    top: 4rem;
+}

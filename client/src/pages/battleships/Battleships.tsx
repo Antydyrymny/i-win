@@ -55,6 +55,28 @@ function Battleships() {
     );
     const roomData: ClientRoom = useOutletContext();
 
+    const chosenCell = useRef<Coordinates | null>();
+    const shipsReadyRef = useRef<Coordinates[][]>([]);
+    const [boardNeedsUpdate, setBoardNeedsUpdate] = useState(false);
+    type CurShip = {
+        coords: Coordinates[];
+        rotated: boolean;
+        placementAllowed: boolean;
+    };
+    const curShipState = useRef<CurShip>({
+        coords: [],
+        rotated: false,
+        placementAllowed: false,
+    });
+    type MyShiPState = 'idle' | 'moving' | 'set';
+    const [myShips, setMyShips] = useState<MyShiPState[]>([
+        'idle',
+        'idle',
+        'idle',
+        'idle',
+        'idle',
+    ]);
+
     useEffect(() => {
         // restart the board
         if (roomData.gameState === 'playing') {
@@ -68,6 +90,15 @@ function Battleships() {
                     Array.from(new Array(boardSize).fill(''))
                 )
             );
+            setBoardNeedsUpdate(false);
+            setMyShips(['idle', 'idle', 'idle', 'idle', 'idle']);
+            chosenCell.current = null;
+            shipsReadyRef.current = [];
+            curShipState.current = {
+                coords: [],
+                rotated: false,
+                placementAllowed: false,
+            };
         }
     }, [roomData.gameState]);
 
@@ -104,28 +135,6 @@ function Battleships() {
         setPlayerBoard(getStateUpdater(player));
         setOpponentBoard(getStateUpdater(opponent));
     }, [gameData, opponent, player, subscribed]);
-
-    const chosenCell = useRef<Coordinates | null>();
-    const shipsReadyRef = useRef<Coordinates[][]>([]);
-    const [boardNeedsUpdate, setBoardNeedsUpdate] = useState(false);
-    type CurShip = {
-        coords: Coordinates[];
-        rotated: boolean;
-        placementAllowed: boolean;
-    };
-    const curShipState = useRef<CurShip>({
-        coords: [],
-        rotated: false,
-        placementAllowed: false,
-    });
-    type MyShiPState = 'idle' | 'moving' | 'set';
-    const [myShips, setMyShips] = useState<MyShiPState[]>([
-        'idle',
-        'idle',
-        'idle',
-        'idle',
-        'idle',
-    ]);
 
     const clearPreview = useCallback(() => {
         setPlayerBoard((board) =>

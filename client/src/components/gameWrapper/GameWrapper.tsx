@@ -36,7 +36,9 @@ export default function GameWrapper({ children }: GameWrapperProps) {
     const handleChooseAnotherGame = () => {
         changeGame('choosing');
     };
-    const handleStart = () => startGame();
+    const handleStart = () => {
+        startGame();
+    };
 
     return (
         <div className={styles.wrapper}>

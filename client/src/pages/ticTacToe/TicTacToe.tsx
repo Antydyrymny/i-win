@@ -36,21 +36,15 @@ export default function TicTacToe() {
         <GameWrapper>
             {subscribed && (
                 <Container className={styles.title}>
-                    {gameData.winner ? (
-                        <>
-                            {gameData.winner === 'draw'
-                                ? 'Game ends in a Draw'
-                                : gameData.winner === userType
-                                ? 'Congratulations, you Win!'
-                                : 'You lose!'}
-                        </>
-                    ) : (
-                        <>
-                            {gameData.playerToMove === userType
-                                ? 'Your Move'
-                                : 'Opponents move'}
-                        </>
-                    )}
+                    {gameData.winner
+                        ? gameData.winner === 'draw'
+                            ? 'Game ends in a Draw'
+                            : gameData.winner === userType
+                            ? 'Congratulations, you Win!'
+                            : 'You lose!'
+                        : gameData.playerToMove === userType
+                        ? 'Your Move'
+                        : 'Opponents move'}
                 </Container>
             )}
             {subscribed && (
@@ -58,7 +52,7 @@ export default function TicTacToe() {
                     <Row className='justify-content-md-center'>
                         <Col xl='5' lg='6' md='9' sm='12'>
                             <Card data-bs-theme='dark' className={styles.card}>
-                                <CardBody className={`${styles.grid}`}>
+                                <CardBody className={styles.grid}>
                                     {gameData.boardState.map((row, y) =>
                                         row.map((col, x) => (
                                             <div

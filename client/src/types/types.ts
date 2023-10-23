@@ -210,41 +210,9 @@ export type ClientBattleShips = {
     winner?: UserType;
 };
 
-export type AllShips = [
-    {
-        name: string;
-        state: 'O' | 'X';
-        coords: [ShipBlock, ShipBlock, ShipBlock, ShipBlock, ShipBlock];
-    },
-    {
-        name: string;
-        state: 'O' | 'X';
-        coords: [ShipBlock, ShipBlock, ShipBlock, ShipBlock];
-    },
-    {
-        name: string;
-        state: 'O' | 'X';
-        coords: [ShipBlock, ShipBlock, ShipBlock];
-    },
-    {
-        name: string;
-        state: 'O' | 'X';
-        coords: [ShipBlock, ShipBlock, ShipBlock];
-    },
-    {
-        name: string;
-        state: 'O' | 'X';
-        coords: [ShipBlock, ShipBlock];
-    }
-];
+export type AllShips = Ship[];
 
-export type PlayerShips = [
-    [ShipBlock, ShipBlock, ShipBlock, ShipBlock, ShipBlock],
-    [ShipBlock, ShipBlock, ShipBlock, ShipBlock],
-    [ShipBlock, ShipBlock, ShipBlock],
-    [ShipBlock, ShipBlock, ShipBlock],
-    [ShipBlock, ShipBlock]
-];
+export type PlayerShips = Coordinates[][];
 
 export type Ship = {
     name: string;

@@ -45,7 +45,7 @@ export const setShipData = (
     game[userType + 'Ships'] = ships.map((playerShip) => ({
         name: uuidv4().slice(6),
         state: 'O',
-        coords: playerShip,
+        coords: playerShip.map((coord) => [...coord, 'O']),
     }));
     game[userType + 'Ready'] = true;
     if (game[getOppositeUserType(userType) + 'Ready']) return true;
@@ -119,6 +119,7 @@ export const processBSMove = (
     }
 
     const winner = getOppositeUserType(move.target);
+    game.winner = winner;
     game.playerToMove = null;
     const room = rooms.get(roomId);
     const [hostsPoints, guestsPoints] = room.score;

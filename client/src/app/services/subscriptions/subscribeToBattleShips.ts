@@ -7,7 +7,6 @@ import {
     UpdatedGameState,
     ClientBattleShips,
     UserType,
-    Ship,
     GameWon,
 } from '../../../types/types';
 
@@ -39,43 +38,68 @@ export function subscribeToBattleShips(builder: ApiBuilder, socket: ApiSocket) {
                     BSServerToClient.PlayerMoved,
                     (update: UpdatedGameState<BattleShips>) => {
                         updateCachedData((draft) => {
-                            const newState = { ...draft };
-                            newState.playerToMove = update.playerToMove;
+                            draft.playerToMove = update.playerToMove;
                             if (update.newMove.result === 'miss') {
-                                newState[
+                                draft[
                                     (update.newMove.target + 'Misses') as keyof Pick<
                                         ClientBattleShips,
                                         'hostMisses' | 'guestMisses'
                                     >
                                 ].push(update.newMove.coordinates);
-                                return newState;
+                            } else {
+                                const ships =
+                                    draft[
+                                        (update.newMove.target + 'Ships') as keyof Pick<
+                                            ClientBattleShips,
+                                            'hostShips' | 'guestShips'
+                                        >
+                                    ];
+                                if (!ships) {
+                                    draft[
+                                        (update.newMove.target + 'Ships') as keyof Pick<
+                                            ClientBattleShips,
+                                            'hostShips' | 'guestShips'
+                                        >
+                                    ] = [
+                                        {
+                                            name: update.newMove.name,
+                                            state: 'O',
+                                            coords: [
+                                                [...update.newMove.coordinates, 'X'],
+                                            ],
+                                        },
+                                    ];
+                                } else {
+                                    const targetShip = ships.findIndex(
+                                        (ship) =>
+                                            ship.name ===
+                                            (update as { newMove: { name: string } })
+                                                .newMove.name //? No idea what is going on here
+                                    );
+                                    if (targetShip === -1) {
+                                        ships.push({
+                                            name: update.newMove.name,
+                                            state: 'O',
+                                            coords: [
+                                                [...update.newMove.coordinates, 'X'],
+                                            ],
+                                        });
+                                    } else {
+                                        ships[targetShip].coords = ships[
+                                            targetShip
+                                        ].coords.map((shipBlock) =>
+                                            shipBlock[0] ===
+                                                update.newMove.coordinates[0] &&
+                                            shipBlock[1] === update.newMove.coordinates[1]
+                                                ? [shipBlock[0], shipBlock[1], 'X']
+                                                : shipBlock
+                                        );
+                                        if (update.newMove.result === 'destroyed') {
+                                            ships[targetShip].state = 'X';
+                                        }
+                                    }
+                                }
                             }
-                            const ships =
-                                newState[
-                                    (update.newMove.target + 'Ships') as keyof Pick<
-                                        ClientBattleShips,
-                                        'hostShips' | 'guestShips'
-                                    >
-                                ];
-                            const targetShip = ships?.findIndex(
-                                (ship) =>
-                                    ship.name ===
-                                    (update as { newMove: { name: string } }).newMove.name //? No idea what is going on here
-                            );
-
-                            (ships as Ship[])[targetShip as number].coords = (
-                                ships as Ship[]
-                            )[targetShip as number].coords.map((shipBlock) =>
-                                shipBlock[0] === update.newMove.coordinates[0] &&
-                                shipBlock[1] === update.newMove.coordinates[1]
-                                    ? [shipBlock[0], shipBlock[1], 'X']
-                                    : shipBlock
-                            );
-                            if (update.newMove.result === 'destroyed') {
-                                (ships as Ship[])[targetShip as number].state = 'X';
-                            }
-
-                            return newState;
                         });
                     }
                 );

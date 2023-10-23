@@ -1,0 +1,207 @@
+@use '../../styles/index.scss' as *;
+
+.title {
+    margin-block: 2.5rem;
+    text-align: center;
+    font-size: 1.3rem;
+    line-height: 1;
+    font-weight: 600;
+    color: $text-color-glow;
+    text-shadow: rgba(12, 19, 55, 0.004) 0px -3px 2px, rgb(27, 122, 226) 0px -1px 4px,
+        rgb(27, 122, 226) 0px -2px 10px, rgb(27, 122, 226) 0px -10px 20px,
+        rgb(27, 122, 226) 0px -18px 40px;
+}
+
+.card {
+    background-color: $bg-color-main;
+    border: none;
+}
+
+.grid {
+    display: grid;
+    gap: 0.4rem;
+    grid-template-columns: repeat(10, 1fr);
+    grid-template-rows: repeat(10, 1fr);
+}
+
+.cell {
+    position: relative;
+    border-radius: 0.5rem;
+    background-color: $bg-color-nav;
+    width: 100%;
+    padding-bottom: 100%;
+    div {
+        color: $text-color-mainYellow;
+        font-size: xx-large;
+        position: absolute;
+        @include flexbox;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+    }
+}
+
+.cell:hover {
+    background-color: $text-color-mainPurple;
+}
+.cell:active {
+    background-color: $text-color-ligherPurple;
+}
+
+.opponentBoard {
+    .empty {
+        cursor: pointer;
+    }
+}
+
+.playerBoard,
+.opponentBoard {
+    .ship,
+    .hovMain {
+        background-color: rgb(7, 70, 206);
+    }
+    .hovMain {
+        cursor: pointer;
+    }
+    .hovS {
+        background-color: rgb(98, 129, 197);
+    }
+    .hovMainErr {
+        cursor: pointer;
+        background-color: red;
+    }
+    .hovErr {
+        background-color: palevioletred;
+    }
+    .destroyed {
+        background-color: red;
+        animation: pulse 1s infinite;
+    }
+    .hit::before {
+        content: '×';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 2rem;
+        color: red;
+    }
+    .miss::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 60%;
+        height: 60%;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.message {
+    margin-block: 1rem;
+    text-align: center;
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 600;
+    color: $text-color-glow;
+    text-shadow: rgba(12, 19, 55, 0.004) 0px -3px 2px, rgb(27, 122, 226) 0px -1px 4px,
+        rgb(27, 122, 226) 0px -2px 10px, rgb(27, 122, 226) 0px -10px 20px,
+        rgb(27, 122, 226) 0px -18px 40px;
+}
+
+.btn {
+    @include flexbox;
+    min-width: 12rem;
+    position: relative;
+    border-radius: 2.5rem;
+    background: linear-gradient(94.97deg, #4e00a9 1.93%, #f1008e 96.93%);
+    padding: 1rem 1.5rem;
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1;
+    font-weight: 600;
+    text-decoration: none;
+    border: 0;
+    cursor: pointer;
+    transition: all 0.3s;
+    z-index: 0;
+    outline: none;
+}
+
+.btn:hover {
+    box-shadow: 0 0 30px #7442c8;
+}
+
+.btnBlack::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: calc(100% - 4px);
+    height: calc(100% - 4px);
+    border-radius: 50px;
+    background: #11132a;
+    z-index: -1;
+}
+
+.myShips {
+    height: calc(100% - 3rem);
+    width: 100%;
+    @include flexbox(column, space-between, flex-start);
+}
+
+.myShips > div {
+    @include flexbox(column, start, flex-start);
+    gap: 0.5rem;
+}
+
+.shipPictogram {
+    display: grid;
+    gap: 0.4rem;
+    padding: 0.75rem;
+    width: 100%;
+    border-radius: 0.5rem;
+    background-color: $bg-color-main;
+}
+
+.shipPictogram0 {
+    width: 10rem;
+    grid-template-columns: repeat(5, 1fr);
+}
+.shipPictogram1 {
+    width: 8rem;
+    grid-template-columns: repeat(4, 1fr);
+}
+.shipPictogram2,
+.shipPictogram3 {
+    width: 6rem;
+    grid-template-columns: repeat(3, 1fr);
+}
+.shipPictogram4 {
+    width: 4rem;
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.moving {
+    opacity: 0.7;
+}
+
+.set {
+    display: none;
+}

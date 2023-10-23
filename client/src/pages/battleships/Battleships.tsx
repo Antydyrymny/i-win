@@ -342,7 +342,7 @@ function Battleships() {
                                         disabled={shipsReadyRef.current.length < 5}
                                         className={`${styles.btn} ${styles.btnBlack}`}
                                     >
-                                        ready up
+                                        Ready up!
                                     </button>
                                 </div>
                             </Col>

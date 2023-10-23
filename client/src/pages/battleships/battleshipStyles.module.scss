@@ -169,6 +169,7 @@
 .myShips > div {
     @include flexbox(column, start, flex-start);
     gap: 0.5rem;
+    margin-bottom: 2rem;
 }
 
 .shipPictogram {

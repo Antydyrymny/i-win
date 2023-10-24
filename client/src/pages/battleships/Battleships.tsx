@@ -224,6 +224,12 @@ function Battleships() {
             oldShips.map((ship, ind) => (ind === shipInd ? 'moving' : ship))
         );
 
+        curShipState.current = {
+            rotated: false,
+            placementAllowed: false,
+            coords: [],
+        };
+
         function onFinalize(e: MouseEvent) {
             if (e.button === 2) return;
             setMyShips((oldShips) =>
@@ -250,14 +256,6 @@ function Battleships() {
                     )
                 );
             } else clearPreview();
-
-            setTimeout(() => {
-                curShipState.current = {
-                    rotated: false,
-                    placementAllowed: false,
-                    coords: [],
-                };
-            });
 
             document.removeEventListener('contextmenu', onRightClick);
             document.removeEventListener('mousedown', onFinalize);

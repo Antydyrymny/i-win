@@ -92,11 +92,6 @@ function RoomLayout() {
         join();
 
         setTypedStorageItem(wasInRoomKey, true);
-
-        // return () => {
-        //     if (userType === 'guest') guestLeave();
-        //     else hostLeave();
-        // };
     }, [guestJoins, guestLeave, hostJoins, hostLeave, navigate, roomId]);
 
     useClearToasts();

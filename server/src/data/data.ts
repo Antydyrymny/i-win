@@ -4,7 +4,7 @@ import {
 } from '../features/tic-tac-toe/tic-tac-toeEvents';
 import {
     subscribeToBatleshipsEvents,
-    // unsubscribeFromBattleships,
+    unsubscribeFromBattleships,
 } from '../features/battleships/battleshipEvents';
 import type {
     Room,
@@ -29,7 +29,7 @@ export const manageGameSubscriptions: Record<GameType, Subscription> = {
     battleships: subscribeToBatleshipsEvents,
     choosing: (socket) => {
         unsubscribeFromTTT(socket);
-        // unsubscribeFromBattleships(socket);
+        unsubscribeFromBattleships(socket);
     },
 };
 

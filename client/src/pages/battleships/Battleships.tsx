@@ -335,9 +335,9 @@ function Battleships() {
                                             >
                                                 {Array.from(
                                                     new Array(shipLengths[ind])
-                                                ).map(() => (
+                                                ).map((_, ind) => (
                                                     <div
-                                                        key={ind + 'cell'}
+                                                        key={ship + ind}
                                                         className={styles.cell}
                                                     />
                                                 ))}
